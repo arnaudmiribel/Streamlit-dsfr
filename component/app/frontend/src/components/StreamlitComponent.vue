@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
 
-import WithStreamlitConnection from './streamlit/WithStreamlitConnection.vue'
+import WithStreamlitConnection from '../streamlit/WithStreamlitConnection.vue'
 
 const props = defineProps<{
 	component: Component
@@ -10,6 +10,6 @@ const props = defineProps<{
 
 <template>
 	<WithStreamlitConnection v-slot="{ width, args, disabled, theme }">
-		<props.component :width="width" :args="args" :disabled="disabled" :theme="theme" />
+		<component :is="props.component" :width="width" :args="args" :disabled="disabled" :theme="theme" />
 	</WithStreamlitConnection>
 </template>

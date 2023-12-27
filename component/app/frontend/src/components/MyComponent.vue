@@ -29,9 +29,12 @@ const style = reactive<{ [key: string]: string }>({})
 
 if (props.theme)
 {
-	const borderStyling = `1px solid ${isFocused ? props.theme.primaryColor : 'gray'}`
-	style.border = borderStyling
-	style.outline = borderStyling
+	style['--base'] = props.theme.base
+	style['--primary-color'] = props.theme.primaryColor
+	style['--background-color'] = props.theme.backgroundColor
+	style['--secondary-background-color'] = props.theme.secondaryBackgroundColor
+	style['--text-color'] = props.theme.textColor
+	style['--font'] = props.theme.font
 }
 
 const onClicked = () =>
@@ -53,10 +56,9 @@ const onBlur = () =>
 </script>
 
 <template>
-	<span>
+	<div class="component" :style="style">
 		Hello, {{ props.args.name }}! &nbsp;
 		<button
-			:style="style"
 			@click="onClicked"
 			:disabled="props.disabled || undefined"
 			@focus="onFocus"
@@ -64,5 +66,16 @@ const onBlur = () =>
 		>
 			Click Me!
 		</button>
-	</span>
+	</div>
 </template>
+
+<style scoped>
+	.component {
+		background-color: var(--secondary-background-color);
+		padding: .5em;
+		box-sizing: border-box;
+		color: var(--text-color);
+		font-family: var(--font);
+		border-radius: .5em;
+	}
+</style>

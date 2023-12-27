@@ -22,7 +22,7 @@ const props = defineProps<
 const numClicks = ref(0)
 const isFocused = ref(false)
 
-const style = {} as any
+const style = reactive<{ [key: string]: string }>({})
 
 if (props.theme)
 {

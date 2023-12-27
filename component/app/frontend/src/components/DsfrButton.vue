@@ -105,7 +105,7 @@ const onBlur = () =>
 			:label="props.args.label"
 			:secondary="props.args.secondary"
 			:tertiary="props.args.tertiary"
-			:disabled="props.args.disabled"
+			:disabled="props.disabled || props.args.disabled"
 			:icon="props.args.icon"
 			:size="props.args.size"
 			:no-outline="props.args.noOutline"

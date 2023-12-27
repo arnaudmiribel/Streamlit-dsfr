@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { Streamlit, type Theme } from 'streamlit-component-lib'
 import { useStreamlit } from '../streamlit'
 
@@ -7,7 +7,7 @@ useStreamlit()
 
 interface ComponentProps<ArgType = any>
 {
-    args?: ArgType
+    args: ArgType
     width: number
     disabled: boolean
     theme?: Theme
@@ -18,6 +18,9 @@ const props = defineProps<
 		name?: string
 	}>
 >()
+
+// Default values
+props.args.name ||= 'World'
 
 const numClicks = ref(0)
 const isFocused = ref(false)

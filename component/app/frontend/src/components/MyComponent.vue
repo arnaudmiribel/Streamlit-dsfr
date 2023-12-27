@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { Streamlit, type Theme } from 'streamlit-component-lib'
+
 import { useStreamlit } from '../streamlit'
 
 useStreamlit()
@@ -19,8 +20,13 @@ const props = defineProps<
 	}>
 >()
 
-// Default values
-props.args.name ||= 'World'
+// Default props values
+watch(() => props.args, () =>
+	{
+		props.args.name ||= 'World'
+	},
+	{ deep: true, immediate: true },
+)
 
 const numClicks = ref(0)
 const isFocused = ref(false)

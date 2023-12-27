@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import MyComponent from './components/MyComponent.vue'
+import DsfrButton from './components/DsfrButton.vue'
 import WithStreamlitConnection from './streamlit/WithStreamlitConnection.vue'
 </script>
 
 <template>
 	<main>
 		<WithStreamlitConnection v-slot="{ width, args, disabled, theme }">
-			<MyComponent :width="width" :args="args" :disabled="disabled" :theme="theme" />
+			<DsfrButton :width="width" :args="args" :disabled="disabled" :theme="theme" />
 		</WithStreamlitConnection>
 	</main>
 </template>

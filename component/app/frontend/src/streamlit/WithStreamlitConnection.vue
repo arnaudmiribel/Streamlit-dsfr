@@ -2,14 +2,14 @@
 import { ref, onMounted, onUpdated, onUnmounted, onErrorCaptured } from 'vue'
 import { Streamlit, type RenderData } from 'streamlit-component-lib'
 
-const renderData = ref<RenderData>((undefined as unknown) as RenderData)
-const componentError = ref("")
+const renderData = ref<RenderData | undefined>(undefined)
+const componentError = ref<string | undefined>(undefined)
 
 const onRenderEvent = (event: Event): void =>
 	{
 		const renderEvent = event as CustomEvent<RenderData>
 		renderData.value = renderEvent.detail
-		componentError.value = ''
+		componentError.value = undefined
 	}
 
 onMounted(() =>
@@ -20,7 +20,7 @@ onMounted(() =>
 
 onUpdated(() =>
 	{
-		if (componentError.value != "")
+		if (componentError.value !== undefined)
 		{
 			Streamlit.setFrameHeight()
 		}
@@ -39,12 +39,12 @@ onErrorCaptured(err =>
 
 <template>
 	<div>
-		<div v-if="componentError != ''">
+		<div v-if="componentError !== undefined">
 			<h1 class="err__title">Component Error</h1>
 			<div class="err__msg">Message: {{ componentError }}</div>
 		</div>
 		<slot
-			v-else-if="renderData != null"
+			v-else-if="renderData !== undefined"
 			:args="renderData.args"
 			:disabled="renderData.disabled"
 		></slot>

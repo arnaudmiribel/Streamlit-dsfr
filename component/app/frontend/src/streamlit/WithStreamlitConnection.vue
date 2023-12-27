@@ -5,6 +5,8 @@ import { Streamlit, type RenderData } from 'streamlit-component-lib'
 const renderData = ref<RenderData | undefined>(undefined)
 const componentError = ref<string | undefined>(undefined)
 
+const innerWidth = window.innerWidth
+
 const onRenderEvent = (event: Event): void =>
 	{
 		const renderEvent = event as CustomEvent<RenderData>
@@ -45,8 +47,10 @@ onErrorCaptured(err =>
 		</div>
 		<slot
 			v-else-if="renderData !== undefined"
+			:width="innerWidth"
 			:args="renderData.args"
 			:disabled="renderData.disabled"
+			:theme="renderData.theme"
 		></slot>
 	</div>
 </template>

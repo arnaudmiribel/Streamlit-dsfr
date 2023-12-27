@@ -5,9 +5,8 @@ import WithStreamlitConnection from './streamlit/WithStreamlitConnection.vue'
 
 <template>
 	<main>
-		<WithStreamlitConnection v-slot="{ args }">
-			<!-- @vue-ignore '{ args: any; }' is missing the following properties from type -->
-			<MyComponent :args="args" />
+		<WithStreamlitConnection v-slot="{ width, args, disabled, theme }">
+			<MyComponent :width="width" :args="args" :disabled="disabled" :theme="theme" />
 		</WithStreamlitConnection>
 	</main>
 </template>

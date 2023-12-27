@@ -1,25 +1,35 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Streamlit } from 'streamlit-component-lib'
+import { Streamlit, type Theme } from 'streamlit-component-lib'
 import { useStreamlit } from '../streamlit'
 
 useStreamlit()
 
-const props = defineProps<{
-	name?: string,
-}>()
+interface ComponentProps<ArgType = any>
+{
+    args?: ArgType
+    width: number
+    disabled: boolean
+    theme?: Theme
+}
+
+const props = defineProps<
+	ComponentProps<{
+		name?: string
+	}>
+>()
 
 const numClicks = ref(0)
 const isFocused = ref(false)
 
-// const style = {} as any
+const style = {} as any
 
-// if (props.theme)
-// {
-// 	const borderStyling = `1px solid ${isFocused ? props.theme.primaryColor : 'gray'}`
-// 	style.border = borderStyling
-// 	style.outline = borderStyling
-// }
+if (props.theme)
+{
+	const borderStyling = `1px solid ${isFocused ? props.theme.primaryColor : 'gray'}`
+	style.border = borderStyling
+	style.outline = borderStyling
+}
 
 const onClicked = () =>
 	{
@@ -41,13 +51,8 @@ const onBlur = () =>
 
 <template>
 	<span>
-		Hello, {{ props.name }}! &nbsp;
+		Hello, {{ props.args.name }}! &nbsp;
 		<button
-			@click="onClicked"
-		>
-			Click Me!
-		</button>
-		<!-- <button
 			:style="style"
 			@click="onClicked"
 			:disabled="props.disabled || undefined"
@@ -55,6 +60,6 @@ const onBlur = () =>
 			@blur="onBlur"
 		>
 			Click Me!
-		</button> -->
+		</button>
 	</span>
 </template>

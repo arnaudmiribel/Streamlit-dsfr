@@ -25,13 +25,10 @@
 # Node
 **/node_modules/
 
-# Astro
-**/.astro/
-**/dist/
-
-# Jekyll
-**/_site/
-**/.jekyll-cache/
+# Python
+**/__pycache__/
+**/.ipynb_checkpoints/
+**/.pytest_cache/
 
 # -- Specific to gitignore:
 

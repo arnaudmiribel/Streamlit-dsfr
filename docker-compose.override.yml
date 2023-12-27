@@ -20,12 +20,14 @@ services:
       context: ./component
       dockerfile: ./Dockerfile
       target: app_node_dev
+      args:
+        PORT: ${FRONTEND_PORT:-80}
     # Deploy
     volumes:
       - ./component/app/frontend:/app
       - /app/node_modules # Remove from bind-mount for better performance
     ports:
       # HTTP
-      - target: 80
+      - target: ${FRONTEND_PORT:-80}
         published: ${HTTP_FRONTEND_PORT:-8000}
         protocol: tcp

@@ -11,9 +11,11 @@ services:
       context: ./component
       dockerfile: ./Dockerfile
       target: app_python_prod
+      args:
+        PORT: ${PORT:-80}
     # Deploy
     ports:
       # HTTP
-      - target: 80
+      - target: ${PORT:-80}
         published: ${HTTP_PORT:-80}
         protocol: tcp

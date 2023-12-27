@@ -35,6 +35,10 @@ FROM python_upstream AS app_python_base
 # Create app directory
 WORKDIR /app
 
+# Set exposed port
+ARG PORT=80
+ENV PORT=${PORT}
+
 # Install Python dependencies
 RUN pip install --no-cache-dir \
 		streamlit \
@@ -60,7 +64,10 @@ RUN pip install --no-cache-dir -e .
 VOLUME /app
 VOLUME /app/node_modules
 
-CMD [ "streamlit", "run", "app.py", "--server.port", "80" ]
+# Expose port
+EXPOSE ${PORT}
+
+CMD [ "sh", "-c", "streamlit run app.py --server.port ${PORT}" ]
 
 
 # --
@@ -70,6 +77,10 @@ FROM node_upstream AS app_node_base
 
 # Create app directory
 WORKDIR /app
+
+# Set exposed port
+ARG PORT=80
+ENV PORT=${PORT}
 
 
 # --
@@ -89,4 +100,7 @@ RUN npm clean-install --include=dev && \
 VOLUME /app
 VOLUME /app/node_modules
 
-CMD [ "npm", "run", "dev", "--", "--host", "--port", "80" ]
+# Expose port
+EXPOSE ${PORT}
+
+CMD [ "sh", "-c", "npm run dev -- --host --port ${PORT}" ]

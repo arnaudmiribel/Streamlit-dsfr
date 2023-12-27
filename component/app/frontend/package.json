@@ -11,6 +11,7 @@
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
+    "@gouvminint/vue-dsfr": "^5.6.3",
     "streamlit-component-lib": "^2.0.0",
     "vue": "^3.3.11"
   },

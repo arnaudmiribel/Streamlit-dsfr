@@ -116,14 +116,3 @@ const onBlur = () =>
 		/>
 	</div>
 </template>
-
-<style scoped>
-	.component {
-		background-color: var(--secondary-background-color);
-		padding: .5em;
-		box-sizing: border-box;
-		color: var(--text-color);
-		font-family: var(--font);
-		border-radius: .5em;
-	}
-</style>

@@ -29,6 +29,6 @@ services:
         PORT: ${FRONTEND_PORT:-8000}
     # Deploy
     volumes:
-      - ./component/app/frontend:/app
+      - ./component/frontend:/app
       - /app/node_modules # Remove from bind-mount for better performance
     network_mode: service:app

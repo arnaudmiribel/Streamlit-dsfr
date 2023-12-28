@@ -13,4 +13,4 @@ services:
       target: npm
     # Deploy
     volumes:
-      - ./component/app/frontend:/app
+      - ./component/frontend:/app

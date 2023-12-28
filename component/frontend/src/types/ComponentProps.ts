@@ -1,4 +1,4 @@
-import type { ComponentProps as StreamlitComponentProps, Theme } from '~/stcomponentlib'
+import type { ComponentProps as StreamlitComponentProps } from '~/stcomponentlib'
 
 interface ComponentProps<ArgType = any> extends StreamlitComponentProps
 {

@@ -34,14 +34,6 @@ const props = defineProps<
 	}>
 >()
 
-// Default props values
-watch(() => props.args, () =>
-	{
-
-	},
-	{ deep: true, immediate: true },
-)
-
 const style = reactive<{ [key: string]: string }>({})
 
 if (props.theme)

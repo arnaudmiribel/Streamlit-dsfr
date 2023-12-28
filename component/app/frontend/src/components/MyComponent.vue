@@ -1,18 +1,11 @@
 <script setup lang="ts">
 import { reactive, ref, watch } from 'vue'
-import { Streamlit, type Theme } from 'streamlit-component-lib'
+import { Streamlit } from 'streamlit-component-lib'
 
 import { useStreamlit } from '../streamlit'
+import type { ComponentProps } from '../types/ComponentProps'
 
 useStreamlit()
-
-interface ComponentProps<ArgType = any>
-{
-    args: ArgType
-    width: number
-    disabled: boolean
-    theme?: Theme
-}
 
 const props = defineProps<
 	ComponentProps<{

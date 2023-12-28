@@ -1,19 +1,11 @@
 <script setup lang="ts">
 import { reactive, watch } from 'vue'
-import type { Theme } from 'streamlit-component-lib'
 import { DsfrFooter } from '@gouvminint/vue-dsfr'
 
 import { useStreamlit } from '../streamlit'
+import type { ComponentProps } from '../types/ComponentProps'
 
 useStreamlit()
-
-interface ComponentProps<ArgType = any>
-{
-    args: ArgType
-    width: number
-    disabled: boolean
-    theme?: Theme
-}
 
 const props = defineProps<
 	ComponentProps<{

@@ -59,7 +59,6 @@ const onRenderEvent = (_event: Event): void =>
 onMounted(() =>
 	{
 		Streamlit.events.addEventListener(Streamlit.RENDER_EVENT, onRenderEvent)
-		Streamlit.setComponentReady()
 	})
 
 onUnmounted(() =>

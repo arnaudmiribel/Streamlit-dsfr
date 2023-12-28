@@ -40,7 +40,7 @@ ARG PORT=80
 ENV PORT=${PORT}
 
 # Install dev dependencies, required in dev & build
-COPY --link ./frontend/package*.json ./frontend/tsconfig*.json ./frontend/*.config.ts .
+COPY --link ./frontend/package*.json ./frontend/tsconfig*.json ./frontend/*.config.* .
 RUN npm clean-install --include=dev && \
 	npm cache clean --force
 

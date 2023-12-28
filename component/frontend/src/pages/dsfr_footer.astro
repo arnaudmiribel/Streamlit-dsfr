@@ -1,0 +1,9 @@
+---
+import Default from '~/layouts/Default.astro'
+import StreamlitComponent from '~/components/StreamlitComponent.vue'
+import Component from '~/components/DsfrFooter.vue'
+---
+
+<Default>
+	<StreamlitComponent component={Component} client:load />
+</Default>

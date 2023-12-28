@@ -4,7 +4,7 @@ import { Streamlit, type RenderData } from 'streamlit-component-lib'
 
 const renderData = ref<RenderData | undefined>(undefined)
 const componentError = ref<string | undefined>(undefined)
-const innerWidth = ref<number | undefined>(undefined)
+const innerWidth = ref<number>(NaN)
 
 const onRenderEvent = (event: Event): void =>
 	{

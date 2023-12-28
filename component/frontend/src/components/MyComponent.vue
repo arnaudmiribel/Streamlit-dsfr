@@ -59,7 +59,7 @@ const onBlur = () =>
 		Hello, {{ props.args.name }}! &nbsp;
 		<button
 			@click="onClicked"
-			:disabled="props.disabled || undefined"
+			:disabled="props.disabled"
 			@focus="onFocus"
 			@blur="onBlur"
 		>

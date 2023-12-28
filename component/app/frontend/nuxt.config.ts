@@ -4,4 +4,11 @@ export default defineNuxtConfig({
   	devtools: {
 		enabled: false,
 	},
+	vite: {
+		server: {
+			watch: {
+				usePolling: true,
+			},
+		},
+	},
 })

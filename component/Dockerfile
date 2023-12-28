@@ -1,6 +1,6 @@
 #syntax=docker/dockerfile:1.4
 
-# This Dockerfile uses the service folder as context.
+# This Dockerfile uses the service parent folder as context.
 
 
 # --
@@ -39,6 +39,11 @@ WORKDIR /app
 ARG PORT=80
 ENV PORT=${PORT}
 
+# Install dev dependencies, required in dev & build
+COPY --link ./frontend/package*.json ./frontend/tsconfig*.json ./frontend/*.config.ts .
+RUN npm clean-install --include=dev && \
+	npm cache clean --force
+
 
 # --
 # Node Dev image
@@ -48,11 +53,6 @@ FROM app_node_base AS app_node_dev
 ENV APP_ENV=dev
 ENV NODE_ENV=development
 
-# Install dev dependencies, required for build
-COPY --link ./frontend/package*.json ./frontend/tsconfig*.json ./frontend/*.config.ts .
-RUN npm clean-install --include=dev && \
-	npm cache clean --force
-
 # Source code should be mounted here
 VOLUME /app
 VOLUME /app/node_modules
@@ -61,6 +61,36 @@ VOLUME /app/node_modules
 EXPOSE ${PORT}
 
 CMD [ "sh", "-c", "npm run dev -- --host --port ${PORT}" ]
+
+
+# --
+# Node Prod build image
+
+FROM app_node_base AS app_node_prod_build
+
+ENV APP_ENV=prod
+ENV NODE_ENV=production
+
+# Copy source code
+COPY --link ./frontend .
+
+# Build application
+RUN npm run generate
+
+
+# --
+# Node Prod image
+
+FROM nginx_upstream AS app_node_prod
+
+ENV APP_ENV=prod
+ENV NODE_ENV=production
+
+# Set app directory
+WORKDIR /usr/share/nginx/html
+
+# Copy built static website files
+COPY --from=app_node_prod_build --link /app/.output/public .
 
 
 # --
@@ -90,7 +120,6 @@ RUN pip install --no-cache-dir \
 FROM app_python_base AS app_python_dev
 
 ENV APP_ENV=dev
-ENV NODE_ENV=development
 
 # Install template as editable package
 COPY --link ./app/setup.py ./app/README.md ./app/MANIFEST.in .
@@ -99,6 +128,31 @@ RUN pip install --no-cache-dir -e .
 # Source code should be mounted here
 VOLUME /app
 VOLUME /app/node_modules
+
+# Expose port
+EXPOSE ${PORT}
+
+CMD [ "sh", "-c", "streamlit run app.py --server.port ${PORT}" ]
+
+
+# --
+# Python Prod image
+
+FROM app_python_base AS app_python_prod
+
+ENV APP_ENV=prod
+
+# Create user 'user' and group 'app'
+RUN groupadd -r app && \
+	useradd -lr -G app -d /app user && \
+	chown -R user:app /app
+USER user
+
+# Copy source code
+COPY --link ./app .
+
+# Copy built frontend files
+COPY --from=app_node_prod_build --link /app/.output/public ./frontend/build
 
 # Expose port
 EXPOSE ${PORT}

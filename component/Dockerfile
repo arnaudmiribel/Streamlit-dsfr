@@ -60,7 +60,9 @@ VOLUME /app/node_modules
 # Expose port
 EXPOSE ${PORT}
 
-CMD [ "sh", "-c", "npm run dev -- --host --port ${PORT}" ]
+COPY --link --chmod=755 ./docker-dev-command.sh /usr/local/bin/docker-dev-command
+
+CMD [ "docker-dev-command" ]
 
 
 # --
@@ -73,6 +75,10 @@ ENV NODE_ENV=production
 
 # Copy source code
 COPY --link ./frontend .
+
+# Create symlink to streamlit component library
+# Workaround for "Unexpected token 'export'" error
+RUN ln -s /app/node_modules/streamlit-component-lib/dist ./src/stcomponentlib
 
 # Build application
 RUN npm run generate

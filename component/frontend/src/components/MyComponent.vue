@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref, watch } from 'vue'
-import { Streamlit } from 'streamlit-component-lib'
+import { Streamlit } from '~/stcomponentlib'
 
 import { useStreamlit } from '../streamlit'
 import type { ComponentProps } from '../types/ComponentProps'

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, reactive, ref, watch } from 'vue'
-import { Streamlit } from 'streamlit-component-lib'
+import { Streamlit } from '~/stcomponentlib'
 import { DsfrButton } from '@gouvminint/vue-dsfr'
 
 import { useStreamlit } from '../streamlit'

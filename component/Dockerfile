@@ -81,7 +81,7 @@ COPY --link ./frontend .
 RUN ln -s /app/node_modules/streamlit-component-lib/dist ./src/stcomponentlib
 
 # Build application
-RUN npm run generate
+RUN npm run build
 
 
 # --
@@ -96,7 +96,7 @@ ENV NODE_ENV=production
 WORKDIR /usr/share/nginx/html
 
 # Copy built static website files
-COPY --from=app_node_prod_build --link /app/.output/public .
+COPY --from=app_node_prod_build --link /app/dist .
 
 
 # --
@@ -158,7 +158,7 @@ USER user
 COPY --link ./app .
 
 # Copy built frontend files
-COPY --from=app_node_prod_build --link /app/.output/public ./frontend/build
+COPY --from=app_node_prod_build --link /app/dist ./frontend/build
 
 # Expose port
 EXPOSE ${PORT}

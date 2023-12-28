@@ -4,14 +4,14 @@ import { Streamlit, type RenderData } from 'streamlit-component-lib'
 
 const renderData = ref<RenderData | undefined>(undefined)
 const componentError = ref<string | undefined>(undefined)
-
-const innerWidth = window.innerWidth
+const innerWidth = ref<number | undefined>(undefined)
 
 const onRenderEvent = (event: Event): void =>
 	{
 		const renderEvent = event as CustomEvent<RenderData>
 		renderData.value = renderEvent.detail
 		componentError.value = undefined
+		innerWidth.value = window.innerWidth
 	}
 
 onMounted(() =>

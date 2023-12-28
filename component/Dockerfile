@@ -92,7 +92,7 @@ ENV APP_ENV=dev
 ENV NODE_ENV=development
 
 # Install dev dependencies, required for build
-COPY --link ./app/frontend/package*.json ./app/frontend/tsconfig*.json ./app/frontend/vite.config.ts .
+COPY --link ./app/frontend/package*.json ./app/frontend/tsconfig*.json ./app/frontend/*.config.ts .
 RUN npm clean-install --include=dev && \
 	npm cache clean --force
 

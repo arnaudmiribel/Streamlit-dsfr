@@ -10,7 +10,6 @@ useStreamlit()
 interface ComponentProps<ArgType = any>
 {
     args: ArgType
-    width: number
     disabled: boolean
     theme?: Theme
 }

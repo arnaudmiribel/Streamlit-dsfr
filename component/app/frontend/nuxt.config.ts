@@ -2,6 +2,6 @@
 export default defineNuxtConfig({
 	srcDir: './src',
   	devtools: {
-		enabled: true,
+		enabled: false,
 	},
 })

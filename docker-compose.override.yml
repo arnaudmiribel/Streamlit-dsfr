@@ -4,20 +4,6 @@ version: '3.4'
 
 services:
 
-  app:
-    # Build override
-    image: ${IMAGES_PREFIX:-app}-app-dev:${DOCKER_TAG:-latest}
-    build:
-      target: app_python_dev
-    # Deploy override
-    volumes:
-      - ./component/app:/app
-    ports:
-      # HTTP
-      - target: ${FRONTEND_PORT:-8000}
-        published: ${HTTP_FRONTEND_PORT:-8000}
-        protocol: tcp
-
   frontend:
     # Build
     image: ${IMAGES_PREFIX:-app}-frontend-dev:${DOCKER_TAG:-latest}
@@ -32,3 +18,17 @@ services:
       - ./component/frontend:/app
       - /app/node_modules # Remove from bind-mount for better performance
     network_mode: service:app
+
+  app:
+    # Build override
+    image: ${IMAGES_PREFIX:-app}-app-dev:${DOCKER_TAG:-latest}
+    build:
+      target: app_python_dev
+    # Deploy override
+    volumes:
+      - ./component/app:/app
+    ports:
+      # HTTP
+      - target: ${FRONTEND_PORT:-8000}
+        published: ${HTTP_FRONTEND_PORT:-8000}
+        protocol: tcp

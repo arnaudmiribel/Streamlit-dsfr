@@ -28,6 +28,42 @@ CMD [ "--help" ]
 
 
 # --
+# Node Base image
+
+FROM node_upstream AS app_node_base
+
+# Create app directory
+WORKDIR /app
+
+# Set exposed port
+ARG PORT=80
+ENV PORT=${PORT}
+
+
+# --
+# Node Dev image
+
+FROM app_node_base AS app_node_dev
+
+ENV APP_ENV=dev
+ENV NODE_ENV=development
+
+# Install dev dependencies, required for build
+COPY --link ./frontend/package*.json ./frontend/tsconfig*.json ./frontend/*.config.ts .
+RUN npm clean-install --include=dev && \
+	npm cache clean --force
+
+# Source code should be mounted here
+VOLUME /app
+VOLUME /app/node_modules
+
+# Expose port
+EXPOSE ${PORT}
+
+CMD [ "sh", "-c", "npm run dev -- --host --port ${PORT}" ]
+
+
+# --
 # Python Base image
 
 FROM python_upstream AS app_python_base
@@ -68,39 +104,3 @@ VOLUME /app/node_modules
 EXPOSE ${PORT}
 
 CMD [ "sh", "-c", "streamlit run app.py --server.port ${PORT}" ]
-
-
-# --
-# Node Base image
-
-FROM node_upstream AS app_node_base
-
-# Create app directory
-WORKDIR /app
-
-# Set exposed port
-ARG PORT=80
-ENV PORT=${PORT}
-
-
-# --
-# Node Dev image
-
-FROM app_node_base AS app_node_dev
-
-ENV APP_ENV=dev
-ENV NODE_ENV=development
-
-# Install dev dependencies, required for build
-COPY --link ./frontend/package*.json ./frontend/tsconfig*.json ./frontend/*.config.ts .
-RUN npm clean-install --include=dev && \
-	npm cache clean --force
-
-# Source code should be mounted here
-VOLUME /app
-VOLUME /app/node_modules
-
-# Expose port
-EXPOSE ${PORT}
-
-CMD [ "sh", "-c", "npm run dev -- --host --port ${PORT}" ]

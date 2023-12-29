@@ -1,21 +1,23 @@
-# streamlit-custom-component
+# streamlit-dsfr
 
-Streamlit component that allows you to do X
+VueDsfr components for Streamlit
+
 
 ## Installation instructions
 
 ```sh
-pip install streamlit-custom-component
+pip install streamlit-dsfr
 ```
+
 
 ## Usage instructions
 
 ```python
 import streamlit as st
 
-from my_component import my_component
+from streamlit_dsfr import st_dsfr_button
 
-value = my_component()
+value = st_dsfr_button()
 
 st.write(value)
 ```

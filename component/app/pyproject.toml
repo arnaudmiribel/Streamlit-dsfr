@@ -3,8 +3,8 @@ requires = [ "setuptools >= 61.0" ]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "streamlit-custom-component"
-description = "Streamlit component that allows you to do X"
+name = "streamlit-dsfr"
+description = "VueDsfr components for Streamlit"
 version = "0.0.1"
 authors = [
     { name = "John Smith", email = "john@example.com" },

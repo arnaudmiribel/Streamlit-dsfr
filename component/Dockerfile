@@ -111,14 +111,6 @@ WORKDIR /app
 ARG PORT=80
 ENV PORT=${PORT}
 
-# Install Python dependencies
-RUN pip install --no-cache-dir \
-		streamlit \
-		&& \
-	# Clean up
-	pip cache purge && \
-	rm -rf /root/.cache/pip /tmp/* /var/tmp/*
-
 
 # --
 # Python Dev image
@@ -127,7 +119,7 @@ FROM app_python_base AS app_python_dev
 
 ENV APP_ENV=dev
 
-# Install template as editable package
+# Install as editable package
 COPY --link ./app/setup.py ./app/README.md ./app/MANIFEST.in .
 RUN pip install --no-cache-dir -e .
 
@@ -157,6 +149,9 @@ USER user
 # Copy source code
 COPY --link ./app .
 
+# Install package
+RUN pip install --no-cache-dir .
+
 # Copy built frontend files
 COPY --from=app_node_prod_build --link /app/dist ./frontend/build
 
@@ -183,5 +178,8 @@ CMD [ "sh", "-c", "streamlit run app.py --server.port ${PORT}" ]
 # Python CI/CD image
 
 FROM app_python_prod AS app_python_cicd
+
+# Install build dependencies
+RUN pip install --no-cache-dir --upgrade build
 
 CMD [ "sh" ]

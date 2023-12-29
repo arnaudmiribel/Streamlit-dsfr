@@ -158,7 +158,7 @@ COPY --from=app_node_prod_build --link /app/dist ./frontend/dist
 # Copy frontend components individually
 USER root
 RUN \
-	for component_path in $(find ./frontend/dist -mindepth 1 -type d ! -name '_astro'); do \
+	for component_path in $(find ./frontend/dist -mindepth 1 -type d -name 'st_*'); do \
 		# Copy each component in the frontend folder
 		component="${component_path##*/}"; \
 		mkdir -p "./frontend/${component}"; \

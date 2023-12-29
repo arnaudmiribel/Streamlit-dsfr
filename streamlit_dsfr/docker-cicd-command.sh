@@ -7,4 +7,4 @@ python -m build
 
 # Copy the dist folder to /tmp/dist
 rm -rf /tmp/dist/*
-cp -r /app/dist/* /tmp/dist
+cp -r ./dist/* /tmp/dist

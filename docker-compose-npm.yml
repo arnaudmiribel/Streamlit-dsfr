@@ -8,9 +8,9 @@ services:
     # Build
     image: ${IMAGES_PREFIX:-app}-npm:${DOCKER_TAG:-latest}
     build:
-      context: ./component
+      context: ./streamlit_dsfr
       dockerfile: ./Dockerfile
       target: npm
     # Deploy
     volumes:
-      - ./component/frontend:/app
+      - .streamlit_dsfr/frontend:/app

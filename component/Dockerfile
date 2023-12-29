@@ -165,7 +165,9 @@ RUN \
 		cp -r ./frontend/build/_astro/* ${component}/_astro; \
 		# Remove leading slash to load astro assets
 		sed -i 's#/_astro#/component/__init__.'"${component##*/}/_astro"'#g' ${component}/index.html; \
-	done
+	done && \
+	# Remove original _astro folder & root files
+	rm -rf ./frontend/build/_astro $(find ./frontend/build -maxdepth 1 -type f)
 USER user
 
 # Expose port

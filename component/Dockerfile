@@ -177,3 +177,14 @@ USER user
 EXPOSE ${PORT}
 
 CMD [ "sh", "-c", "streamlit run app.py --server.port ${PORT}" ]
+
+
+# --
+# Python CI/CD image
+
+FROM app_python_prod AS app_python_cicd
+
+# Copy package build configuration
+COPY --link ./cicd/* .
+
+CMD [ "sh" ]

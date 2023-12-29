@@ -153,21 +153,24 @@ COPY --link ./app .
 RUN pip install --no-cache-dir .
 
 # Copy built frontend files
-COPY --from=app_node_prod_build --link /app/dist ./frontend/build
+COPY --from=app_node_prod_build --link /app/dist ./frontend/dist
 
-# Edit frontend files
+# Copy frontend components individually
 USER root
 RUN \
-	for component in $(find ./frontend/build -mindepth 1 -type d ! -name '_astro'); do \
+	for component_path in $(find ./frontend/dist -mindepth 1 -type d ! -name '_astro'); do \
+		# Copy each component in the frontend folder
+		component="${component_path##*/}"; \
+		mkdir -p "./frontend/${component}"; \
+		cp -r "${component_path}/"* "./frontend/${component}"; \
 		# Copy astro assets for each component
-		# Symlinks do not work: requests are forbidden
-		mkdir -p ${component}/_astro; \
-		cp -r ./frontend/build/_astro/* ${component}/_astro; \
-		# Remove leading slash to load astro assets
-		sed -i 's#/_astro#/component/__init__.'"${component##*/}/_astro"'#g' ${component}/index.html; \
+		mkdir -p "./frontend/${component}/_astro"; \
+		cp -r "./frontend/dist/_astro/"* "./frontend/${component}/_astro"; \
+		# Remove leading slash in component code to load astro assets
+		sed -i 's#/_astro#/component/__init__.'"${component##*/}/_astro"'#g' "./frontend/${component}/index.html"; \
 	done && \
-	# Remove original _astro folder & root files
-	rm -rf ./frontend/build/_astro $(find ./frontend/build -maxdepth 1 -type f)
+	# Remove the dist folder
+	rm -rf ./frontend/dist
 USER user
 
 # Expose port

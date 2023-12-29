@@ -1,0 +1,33 @@
+[build-system]
+requires = [ "setuptools >= 61.0" ]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "streamlit-custom-component"
+description = "Streamlit component that allows you to do X"
+version = "0.0.1"
+authors = [
+    { name = "John Smith", email = "john@example.com" },
+]
+requires-python = ">=3.7"
+dependencies = [
+	# By definition, a Custom Component depends on Streamlit.
+	# If your component has other Python dependencies, list
+	# them here.
+	"streamlit >= 0.63",
+]
+classifiers = []
+dynamic = [ "readme" ]
+
+[tool.setuptools.dynamic]
+readme = { file = [ "README.md" ], content-type = "text/markdown" }
+
+[project.optional-dependencies]
+devel = [
+	"wheel",
+	"pytest==7.4.0",
+	"playwright==1.39.0",
+	"requests==2.31.0",
+	"pytest-playwright-snapshot==1.0",
+	"pytest-rerunfailures==12.0",
+]

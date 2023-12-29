@@ -30,12 +30,8 @@
 **/.ipynb_checkpoints/
 **/.pytest_cache/
 
-# Nuxt
-**/.output/
-**/.data/
-**/.nuxt/
-**/.nitro/
-**/.cache/
+# Build files
+**/build/
 **/dist/
 
 # -- Specific to dockerignore:

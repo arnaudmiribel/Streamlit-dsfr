@@ -9,3 +9,6 @@ services:
     image: ${IMAGES_PREFIX:-app}-cicd:${DOCKER_TAG:-latest}
     build:
       target: app_python_cicd
+    # Deploy override
+    volumes:
+      - ./component/dist:/tmp/dist

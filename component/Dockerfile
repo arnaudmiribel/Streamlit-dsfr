@@ -179,7 +179,11 @@ CMD [ "sh", "-c", "streamlit run app.py --server.port ${PORT}" ]
 
 FROM app_python_prod AS app_python_cicd
 
+USER root
+
 # Install build dependencies
 RUN pip install --no-cache-dir --upgrade build
 
-CMD [ "sh" ]
+COPY --link --chmod=755 ./docker-cicd-command.sh /usr/local/bin/docker-cicd-command
+
+CMD [ "docker-cicd-command" ]

@@ -160,6 +160,19 @@ COPY --link ./app .
 # Copy built frontend files
 COPY --from=app_node_prod_build --link /app/dist ./frontend/build
 
+# Edit frontend files
+USER root
+RUN \
+	for component in $(find ./frontend/build -mindepth 1 -type d ! -name '_astro'); do \
+		# Copy astro assets for each component
+		# Symlinks do not work: requests are forbidden
+		mkdir -p ${component}/_astro; \
+		cp -r ./frontend/build/_astro/* ${component}/_astro; \
+		# Remove leading slash to load astro assets
+		sed -i 's#/_astro#/component/__init__.'"${component##*/}/_astro"'#g' ${component}/index.html; \
+	done
+USER user
+
 # Expose port
 EXPOSE ${PORT}
 

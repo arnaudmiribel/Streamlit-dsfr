@@ -1,0 +1,71 @@
+name: Publish
+
+on:
+  # Run on push events on primary branches
+  push:
+    branches:
+      - main
+    paths:
+      - 'streamlit_dsfr/**'
+
+  # Run on manual triggers
+  workflow_dispatch:
+
+# Set GITHUB_TOKEN permissions
+permissions:
+  contents: read
+
+# Allow one concurrent deployment
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+
+  # Build job
+  build:
+    name: Build Astro site artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Build for production
+      run: docker compose -f docker-compose.yml -f docker-compose.cicd.yml build
+
+    - name: Copy application files
+      run: docker compose -f docker-compose.yml -f docker-compose.cicd.yml run --rm app
+
+    - name: Upload dist folder
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist
+        path: ./streamlit_dsfr/dist
+        if-no-files-found: error
+
+  # Publish job
+  publish:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    # Dependencies
+    needs:
+      - build
+
+    # Set deployment environment
+    environment:
+      name: pypi
+      url: ${{ steps.deployment.outputs.url }}
+
+    steps:
+    - name: Deploy to PyPI
+      id: deployment
+      run: |
+        # TODO
+        echo "Deploying to PyPI..."
+
+        # Set deployment output URL
+        echo "url=TODO" >> $GITHUB_OUTPUT

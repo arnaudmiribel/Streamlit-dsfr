@@ -5,7 +5,7 @@ import streamlit.components.v1 as components
 # the component, and True when we're ready to package and distribute it.
 # (This is, of course, optional - there are innumerable ways to manage your
 # release process.)
-_RELEASE = False
+_RELEASE = (os.environ.get('APP_ENV') or 'prod') == 'prod'
 
 # Declare a Streamlit component. `declare_component` returns a function
 # that is used to create instances of the component. We're naming this
@@ -19,7 +19,8 @@ _RELEASE = False
 # best practice.
 
 if not _RELEASE:
-    _component_func = components.declare_component(
+    components_url = 'http://localhost:8000'
+    _my_component_func = components.declare_component(
         # We give the component a simple, descriptive name ("my_component"
         # does not fit this bill, so please choose something better for your
         # own component :)
@@ -27,7 +28,11 @@ if not _RELEASE:
         # Pass `url` here to tell Streamlit that the component will be served
         # by the local dev server that you run via `npm run start`.
         # (This is useful while your component is in development.)
-        url = 'http://localhost:8000',
+        url = components_url + '/my_component'
+    )
+    _dsfr_button_func = components.declare_component(
+        'dsfr_button',
+        url = components_url + '/dsfr_button'
     )
 else:
     # When we're distributing a production version of the component, we'll
@@ -35,7 +40,8 @@ else:
     # build directory:
     parent_dir = os.path.dirname(os.path.abspath(__file__))
     build_dir = os.path.join(parent_dir, 'frontend/build')
-    _component_func = components.declare_component('my_component', path = build_dir)
+    _my_component_func = components.declare_component('my_component', path = os.path.join(build_dir, 'my_component'))
+    _dsfr_button_func = components.declare_component('dsfr_button', path = os.path.join(build_dir, 'dsfr_button'))
 
 
 # Create a wrapper function for the component. This is an optional
@@ -70,8 +76,12 @@ def my_component(name, key = None):
     #
     # "default" is a special argument that specifies the initial return
     # value of the component before the user has interacted with it.
-    component_value = _component_func(name = name, key = key, default = 0)
+    component_value = _my_component_func(name = name, key = key, default = 0)
 
     # We could modify the value returned from the component if we wanted.
     # There's no need to do this in our simple example - but it's an option.
     return component_value
+
+def dsfr_button(label, key = None):
+	component_value = _dsfr_button_func(label = label, key = key, default = False)
+	return component_value

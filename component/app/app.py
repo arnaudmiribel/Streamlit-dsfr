@@ -1,5 +1,5 @@
 import streamlit as st
-from __init__ import my_component
+from __init__ import my_component, dsfr_button
 
 # Add some test code to play with the component while it's in development.
 # During development, we can run this just as we would any other Streamlit
@@ -11,6 +11,9 @@ st.subheader('Component with constant args')
 # print its output value.
 num_clicks = my_component('World')
 st.markdown(f'You\'ve clicked {int(num_clicks)} times!')
+
+if dsfr_button('Click me'):
+	st.markdown('You clicked the button')
 
 st.markdown('---')
 st.subheader('Component with variable args')
@@ -26,3 +29,6 @@ st.subheader('Component with variable args')
 name_input = st.text_input('Enter a name', value = 'Streamlit')
 num_clicks = my_component(name_input, key = 'foo')
 st.markdown(f'You\'ve clicked {int(num_clicks)} times!')
+
+if dsfr_button(name_input):
+	st.markdown('You clicked the button')

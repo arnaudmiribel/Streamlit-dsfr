@@ -1,5 +1,5 @@
 import { onMounted, onUpdated } from 'vue'
-import { Streamlit } from 'streamlit-component-lib'
+import { Streamlit } from '~/stcomponentlib'
 
 export function useStreamlit()
 {

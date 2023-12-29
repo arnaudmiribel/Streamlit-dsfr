@@ -4,6 +4,21 @@ version: '3.4'
 
 services:
 
+  frontend:
+    # Build
+    image: ${IMAGES_PREFIX:-app}-frontend-dev:${DOCKER_TAG:-latest}
+    build:
+      context: ./component
+      dockerfile: ./Dockerfile
+      target: app_node_dev
+      args:
+        PORT: ${FRONTEND_PORT:-8000}
+    # Deploy
+    volumes:
+      - ./component/frontend:/app
+      - /app/node_modules # Remove from bind-mount for better performance
+    network_mode: service:app
+
   app:
     # Build override
     image: ${IMAGES_PREFIX:-app}-app-dev:${DOCKER_TAG:-latest}
@@ -17,18 +32,3 @@ services:
       - target: ${FRONTEND_PORT:-8000}
         published: ${HTTP_FRONTEND_PORT:-8000}
         protocol: tcp
-
-  frontend:
-    # Build
-    image: ${IMAGES_PREFIX:-app}-frontend-dev:${DOCKER_TAG:-latest}
-    build:
-      context: ./component
-      dockerfile: ./Dockerfile
-      target: app_node_dev
-      args:
-        PORT: ${FRONTEND_PORT:-8000}
-    # Deploy
-    volumes:
-      - ./component/app/frontend:/app
-      - /app/node_modules # Remove from bind-mount for better performance
-    network_mode: service:app

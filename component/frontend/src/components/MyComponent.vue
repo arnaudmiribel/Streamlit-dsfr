@@ -1,17 +1,11 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
-import { Streamlit, type Theme } from 'streamlit-component-lib'
+import { reactive, ref, watch } from 'vue'
+import { Streamlit } from '~/stcomponentlib'
+
 import { useStreamlit } from '../streamlit'
+import type { ComponentProps } from '../types/ComponentProps'
 
 useStreamlit()
-
-interface ComponentProps<ArgType = any>
-{
-    args: ArgType
-    width: number
-    disabled: boolean
-    theme?: Theme
-}
 
 const props = defineProps<
 	ComponentProps<{
@@ -19,8 +13,13 @@ const props = defineProps<
 	}>
 >()
 
-// Default values
-props.args.name ||= 'World'
+// Default props values
+watch(() => props.args, () =>
+	{
+		props.args.name ||= 'World'
+	},
+	{ deep: true, immediate: true },
+)
 
 const numClicks = ref(0)
 const isFocused = ref(false)
@@ -60,7 +59,7 @@ const onBlur = () =>
 		Hello, {{ props.args.name }}! &nbsp;
 		<button
 			@click="onClicked"
-			:disabled="props.disabled || undefined"
+			:disabled="props.disabled"
 			@focus="onFocus"
 			@blur="onBlur"
 		>

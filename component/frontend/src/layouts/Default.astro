@@ -1,0 +1,18 @@
+---
+import Base from '~/layouts/Base.astro'
+
+import '@gouvfr/dsfr/dist/dsfr.min.css'
+import '@gouvminint/vue-dsfr/styles'
+---
+
+<Base>
+	<main>
+		<slot />
+	</main>
+</Base>
+
+<style>
+	body {
+		margin: 0;
+	}
+</style>

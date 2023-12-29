@@ -184,7 +184,4 @@ CMD [ "sh", "-c", "streamlit run app.py --server.port ${PORT}" ]
 
 FROM app_python_prod AS app_python_cicd
 
-# Copy package build configuration
-COPY --link ./cicd/* .
-
 CMD [ "sh" ]

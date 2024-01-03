@@ -58,7 +58,7 @@ jobs:
     needs:
       - build
 
-    if: ${{ never() }}
+    if: false
 
     # Set deployment environment
     environment:

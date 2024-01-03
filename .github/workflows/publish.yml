@@ -61,7 +61,7 @@ jobs:
     # Set deployment environment
     environment:
       name: release
-      url: ${{ steps.release.outputs.url }}
+      url: ${{ steps.release-url.outputs.url }}
 
     steps:
     - name: Download artifact
@@ -70,7 +70,7 @@ jobs:
         name: dist
 
     - name: Create pre-release
-      id: release
+      id: prerelease
       uses: softprops/action-gh-release@v1
       if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
       with:
@@ -91,3 +91,14 @@ jobs:
         files: ./dist/*
         fail_on_unmatched_files: true
         generate_release_notes: true
+
+    - name: Get release URL
+      id: release-url
+      run: |
+        if [ -n "${{ steps.prerelease.outputs.url }}" ]; then
+          echo "url=${{ steps.prerelease.outputs.url }}" >> $GITHUB_OUTPUT
+        elif [ -n "${{ steps.release.outputs.url }}" ]; then
+          echo "url=${{ steps.release.outputs.url }}" >> $GITHUB_OUTPUT
+        else
+          echo "url=" >> $GITHUB_OUTPUT
+        fi

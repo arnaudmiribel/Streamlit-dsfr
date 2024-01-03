@@ -68,9 +68,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: dist
-
-    - name: Unzip artifact
-      run: unzip -q dist.zip -d dist
+        path: ./dist
 
     - name: Create pre-release
       id: prerelease

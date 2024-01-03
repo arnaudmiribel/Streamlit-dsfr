@@ -8,6 +8,9 @@ on:
     paths:
       - 'streamlit_dsfr/**'
 
+  # Run on pull request events
+  pull_request:
+
   # Run on manual triggers
   workflow_dispatch:
 
@@ -54,6 +57,8 @@ jobs:
     # Dependencies
     needs:
       - build
+
+    if: ${{ never() }}
 
     # Set deployment environment
     environment:

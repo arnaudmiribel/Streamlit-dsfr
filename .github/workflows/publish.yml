@@ -58,6 +58,10 @@ jobs:
     needs:
       - build
 
+    # Set GITHUB_TOKEN permissions
+    permissions:
+      contents: write
+
     # Set deployment environment
     environment:
       name: release

@@ -23,6 +23,7 @@ supported_components = {
     'dsfr_badge': 'st_dsfr_badge',
     'dsfr_breadcrumb': 'st_dsfr_breadcrumb',
     'dsfr_button': 'st_dsfr_button',
+    'dsfr_input': 'st_dsfr_input',
 }
 
 if not _RELEASE:
@@ -69,4 +70,8 @@ def dsfr_button(label, key = None):
 
 def dsfr_checkbox(label, value = None, key = None):
 	component_value = _dsfr_checkbox_func(label = label, modelValue = value, key = key, default = False)
+	return component_value
+
+def dsfr_input(key = None):
+	component_value = _dsfr_input_func(key = key, default = False)
 	return component_value

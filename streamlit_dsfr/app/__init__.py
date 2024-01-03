@@ -39,7 +39,7 @@ else:
     # replace the `url` param with `path`, and point it to the component's
     # build directory:
     parent_dir = os.path.dirname(os.path.abspath(__file__))
-    build_dir = os.path.join(parent_dir, 'frontend/build')
+    build_dir = os.path.join(parent_dir, 'frontend')
     _my_component_func = components.declare_component('my_component', path = os.path.join(build_dir, 'my_component'))
     _dsfr_button_func = components.declare_component('dsfr_button', path = os.path.join(build_dir, 'dsfr_button'))
 

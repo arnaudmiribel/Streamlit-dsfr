@@ -111,14 +111,6 @@ WORKDIR /app
 ARG PORT=80
 ENV PORT=${PORT}
 
-# Install Python dependencies
-RUN pip install --no-cache-dir \
-		streamlit \
-		&& \
-	# Clean up
-	pip cache purge && \
-	rm -rf /root/.cache/pip /tmp/* /var/tmp/*
-
 
 # --
 # Python Dev image
@@ -127,7 +119,7 @@ FROM app_python_base AS app_python_dev
 
 ENV APP_ENV=dev
 
-# Install template as editable package
+# Install as editable package
 COPY --link ./app/setup.py ./app/README.md ./app/MANIFEST.in .
 RUN pip install --no-cache-dir -e .
 
@@ -157,23 +149,46 @@ USER user
 # Copy source code
 COPY --link ./app .
 
-# Copy built frontend files
-COPY --from=app_node_prod_build --link /app/dist ./frontend/build
+# Install package
+RUN pip install --no-cache-dir .
 
-# Edit frontend files
+# Copy built frontend files
+COPY --from=app_node_prod_build --link /app/dist ./frontend/dist
+
+# Copy frontend components individually
 USER root
 RUN \
-	for component in $(find ./frontend/build -mindepth 1 -type d ! -name '_astro'); do \
+	for component_path in $(find ./frontend/dist -mindepth 1 -type d -name 'st_*'); do \
+		# Copy each component in the frontend folder
+		component="${component_path##*/}"; \
+		mkdir -p "./frontend/${component}"; \
+		cp -r "${component_path}/"* "./frontend/${component}"; \
 		# Copy astro assets for each component
-		# Symlinks do not work: requests are forbidden
-		mkdir -p ${component}/_astro; \
-		cp -r ./frontend/build/_astro/* ${component}/_astro; \
-		# Remove leading slash to load astro assets
-		sed -i 's#/_astro#/component/__init__.'"${component##*/}/_astro"'#g' ${component}/index.html; \
-	done
+		mkdir -p "./frontend/${component}/_astro"; \
+		cp -r "./frontend/dist/_astro/"* "./frontend/${component}/_astro"; \
+		# Remove leading slash in component code to load astro assets
+		sed -i 's#/_astro#/component/__init__.'"${component##*/}/_astro"'#g' "./frontend/${component}/index.html"; \
+	done && \
+	# Remove the dist folder
+	rm -rf ./frontend/dist
 USER user
 
 # Expose port
 EXPOSE ${PORT}
 
 CMD [ "sh", "-c", "streamlit run app.py --server.port ${PORT}" ]
+
+
+# --
+# Python CI/CD image
+
+FROM app_python_prod AS app_python_cicd
+
+USER root
+
+# Install build dependencies
+RUN pip install --no-cache-dir --upgrade build
+
+COPY --link --chmod=755 ./docker-cicd-command.sh /usr/local/bin/docker-cicd-command
+
+CMD [ "docker-cicd-command" ]

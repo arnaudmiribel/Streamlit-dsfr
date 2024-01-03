@@ -69,6 +69,9 @@ jobs:
       with:
         name: dist
 
+    - name: Unzip artifact
+      run: unzip -q dist.zip -d dist
+
     - name: Create pre-release
       id: prerelease
       uses: softprops/action-gh-release@v1

@@ -83,7 +83,7 @@ jobs:
           const nextTag = releases.length === 0 ? 'v0.0.0' : releases[0].tag_name
           const nextVersion = nextTag.replace(/^v/, '').split('.').map(n => parseInt(n, 10))
           nextVersion[2] += 1
-          return nextVersion.join('.')
+          return `v${nextVersion.join('.')}`
 
     - name: Create release
       id: release

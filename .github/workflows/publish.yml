@@ -74,13 +74,18 @@ jobs:
         name: dist
         path: ./dist
 
+    - name: Set pre-release tag name
+      id: prerelease-tag
+      # Use timestamp as the tag
+      run: echo "tag=t$(date +%s)" >> $GITHUB_OUTPUT
+
     - name: Create pre-release
       id: prerelease
       uses: softprops/action-gh-release@v1
       if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
       with:
         # Use the commit hash as the tag
-        tag_name: ${{ github.sha }}
+        tag_name: ${{ steps.prerelease-tag.outputs.tag }}
         prerelease: true
         files: ./dist/*
         fail_on_unmatched_files: true
@@ -91,7 +96,6 @@ jobs:
       uses: softprops/action-gh-release@v1
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
       with:
-        # Use the commit hash as the tag
         prerelease: false
         files: ./dist/*
         fail_on_unmatched_files: true

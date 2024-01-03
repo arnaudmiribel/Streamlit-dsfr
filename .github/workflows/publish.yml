@@ -48,9 +48,9 @@ jobs:
         path: ./streamlit_dsfr/dist
         if-no-files-found: error
 
-  # Publish job
-  publish:
-    name: Publish to PyPI
+  # Release job
+  release:
+    name: Release version
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -58,19 +58,22 @@ jobs:
     needs:
       - build
 
-    if: false
+    # Run only if tag is pushed
+    if: startsWith(github.ref, 'refs/tags/')
 
     # Set deployment environment
     environment:
-      name: pypi
-      url: ${{ steps.deployment.outputs.url }}
+      name: release
+      url: ${{ steps.release.outputs.url }}
 
     steps:
-    - name: Deploy to PyPI
-      id: deployment
-      run: |
-        # TODO
-        echo "Deploying to PyPI..."
+    - name: Download artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: dist
 
-        # Set deployment output URL
-        echo "url=TODO" >> $GITHUB_OUTPUT
+    - name: Create release
+      id: release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./dist/*

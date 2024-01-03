@@ -76,8 +76,10 @@ jobs:
 
     - name: Set pre-release tag name
       id: prerelease-tag
-      # Use timestamp as the tag
-      run: echo "tag=t$(date +%s)" >> $GITHUB_OUTPUT
+      # Use datetime and short commit hash as the pre-release tag name
+      run: echo "tag=t$(date +%Y%m%d.%H%M%S).${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
+      env:
+        GITHUB_SHA: ${{ github.sha }}
 
     - name: Create pre-release
       id: prerelease

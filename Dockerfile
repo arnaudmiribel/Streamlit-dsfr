@@ -1,6 +1,6 @@
 #syntax=docker/dockerfile:1.4
 
-# This Dockerfile uses the service parent folder as context.
+# This Dockerfile uses the root folder as context.
 
 
 # --
@@ -21,7 +21,7 @@ WORKDIR /app
 # Source code should be mounted here
 VOLUME /app
 
-COPY --link --chmod=755 ./docker-npm-entrypoint.sh /usr/local/bin/docker-npm-entrypoint
+COPY --link --chmod=755 ./frontend/docker-npm-entrypoint.sh /usr/local/bin/docker-npm-entrypoint
 
 ENTRYPOINT [ "docker-npm-entrypoint" ]
 CMD [ "--help" ]
@@ -40,7 +40,7 @@ ARG PORT=80
 ENV PORT=${PORT}
 
 # Install dev dependencies, required in dev & build
-COPY --link ./frontend/package*.json ./frontend/tsconfig*.json ./frontend/*.config.* .
+COPY --link ./frontend/app/package*.json ./frontend/app/tsconfig*.json ./frontend/app/*.config.* .
 RUN npm clean-install --include=dev && \
 	npm cache clean --force
 
@@ -60,7 +60,7 @@ VOLUME /app/node_modules
 # Expose port
 EXPOSE ${PORT}
 
-COPY --link --chmod=755 ./docker-dev-command.sh /usr/local/bin/docker-dev-command
+COPY --link --chmod=755 ./frontend/docker-dev-command.sh /usr/local/bin/docker-dev-command
 
 CMD [ "docker-dev-command" ]
 
@@ -74,7 +74,7 @@ ENV APP_ENV=prod
 ENV NODE_ENV=production
 
 # Copy source code
-COPY --link ./frontend .
+COPY --link ./frontend/app .
 
 # Create symlink to streamlit component library
 # Workaround for "Unexpected token 'export'" error
@@ -120,7 +120,7 @@ FROM app_python_base AS app_python_dev
 ENV APP_ENV=dev
 
 # Install as editable package
-COPY --link ./app/setup.py ./app/README.md ./app/MANIFEST.in .
+COPY --link ./app/app/setup.py ./app/app/README.md ./app/app/MANIFEST.in .
 RUN pip install --no-cache-dir -e .
 
 # Source code should be mounted here
@@ -147,30 +147,30 @@ RUN groupadd -r app && \
 USER user
 
 # Copy source code
-COPY --link ./app .
+COPY --link ./app/app .
 
 # Install package
 RUN pip install --no-cache-dir .
 
 # Copy built frontend files
-COPY --from=app_node_prod_build --link /app/dist ./frontend/dist
+COPY --from=app_node_prod_build --link /app/dist ./streamlit_dsfr/frontend/dist
 
 # Copy frontend components individually
 USER root
 RUN \
-	for component_path in $(find ./frontend/dist -mindepth 1 -type d -name 'st_*'); do \
+	for component_path in $(find ./streamlit_dsfr/frontend/dist -mindepth 1 -type d -name 'st_*'); do \
 		# Copy each component in the frontend folder
 		component="${component_path##*/}"; \
-		mkdir -p "./frontend/${component}"; \
-		cp -r "${component_path}/"* "./frontend/${component}"; \
+		mkdir -p "./streamlit_dsfr/frontend/${component}"; \
+		cp -r "${component_path}/"* "./streamlit_dsfr/frontend/${component}"; \
 		# Copy astro assets for each component
-		mkdir -p "./frontend/${component}/_astro"; \
-		cp -r "./frontend/dist/_astro/"* "./frontend/${component}/_astro"; \
+		mkdir -p "./streamlit_dsfr/frontend/${component}/_astro"; \
+		cp -r "./streamlit_dsfr/frontend/dist/_astro/"* "./streamlit_dsfr/frontend/${component}/_astro"; \
 		# Remove leading slash in component code to load astro assets
-		sed -i 's#/_astro#/component/__init__.'"${component##*/}/_astro"'#g' "./frontend/${component}/index.html"; \
+		sed -i 's#/_astro#/component/__init__.'"${component##*/}/_astro"'#g' "./streamlit_dsfr/frontend/${component}/index.html"; \
 	done && \
 	# Remove the dist folder
-	rm -rf ./frontend/dist
+	rm -rf ./streamlit_dsfr/frontend/dist
 USER user
 
 # Expose port
@@ -189,6 +189,6 @@ USER root
 # Install build dependencies
 RUN pip install --no-cache-dir --upgrade build
 
-COPY --link --chmod=755 ./docker-cicd-command.sh /usr/local/bin/docker-cicd-command
+COPY --link --chmod=755 ./app/docker-cicd-command.sh /usr/local/bin/docker-cicd-command
 
 CMD [ "docker-cicd-command" ]

@@ -118,41 +118,34 @@ ENV PORT=${PORT}
 FROM app_python_base AS app_python_dev
 
 ENV APP_ENV=dev
+ENV PYTHONPATH=.
 
 # Install as editable package
-COPY --link ./app/app/setup.py ./app/app/README.md ./app/app/MANIFEST.in .
+COPY --link ./app/app .
 RUN pip install --no-cache-dir -e .
 
 # Source code should be mounted here
 VOLUME /app
-VOLUME /app/node_modules
+VOLUME /app/demo
 
 # Expose port
 EXPOSE ${PORT}
 
-CMD [ "sh", "-c", "streamlit run app.py --server.port ${PORT}" ]
+CMD [ "sh", "-c", "streamlit run demo/app.py --server.port ${PORT}" ]
 
 
 # --
-# Python Prod image
+# Python Prod build image
 
-FROM app_python_base AS app_python_prod
+FROM app_python_base AS app_python_prod_build
 
 ENV APP_ENV=prod
-
-# Create user 'user' and group 'app'
-RUN groupadd -r app && \
-	useradd -lr -G app -d /app user && \
-	chown -R user:app /app
-USER user
 
 # Copy source code
 COPY --link ./app/app .
 
 # Set release flag to true
-USER root
 RUN sed -i 's/^_RELEASE = False/_RELEASE = True/g' ./streamlit_dsfr/__init__.py
-USER user
 
 # Install package
 RUN pip install --no-cache-dir .
@@ -161,39 +154,68 @@ RUN pip install --no-cache-dir .
 COPY --from=app_node_prod_build --link /app/dist ./streamlit_dsfr/frontend/dist
 
 # Copy frontend components individually
-USER root
 RUN \
 	for component_path in $(find ./streamlit_dsfr/frontend/dist -mindepth 1 -type d -name 'st_*'); do \
 		# Copy each component in the frontend folder
 		component="${component_path##*/}"; \
+		component_name="${component#st_}"; \
 		mkdir -p "./streamlit_dsfr/frontend/${component}"; \
 		cp -r "${component_path}/"* "./streamlit_dsfr/frontend/${component}"; \
 		# Copy astro assets for each component
 		mkdir -p "./streamlit_dsfr/frontend/${component}/_astro"; \
 		cp -r "./streamlit_dsfr/frontend/dist/_astro/"* "./streamlit_dsfr/frontend/${component}/_astro"; \
-		# Remove leading slash in component code to load astro assets
-		sed -i 's#/_astro#/component/__init__.'"${component##*/}/_astro"'#g' "./streamlit_dsfr/frontend/${component}/index.html"; \
+		# Fix URLs to load assets
+		sed -i 's#/_astro#/component/streamlit_dsfr.'"${component_name}/_astro"'#g' \
+			"./streamlit_dsfr/frontend/${component}/index.html" \
+			"./streamlit_dsfr/frontend/${component}/_astro/"*".css" \
+			; \
 	done && \
 	# Remove the dist folder
 	rm -rf ./streamlit_dsfr/frontend/dist
+
+
+# --
+# Python CI/CD image
+
+FROM app_python_base AS app_python_cicd
+
+# Install build dependencies
+RUN pip install --no-cache-dir --upgrade build
+
+# Copy package files
+COPY --from=app_python_prod_build --link /app .
+
+# Build package
+RUN python -m build
+
+COPY --link --chmod=755 ./app/docker-cicd-command.sh /usr/local/bin/docker-cicd-command
+
+CMD [ "docker-cicd-command" ]
+
+
+# --
+# Python Prod image
+
+FROM app_python_base AS app_python_prod
+
+# Copy source code
+COPY --link ./app/demo .
+
+# Copy built package
+COPY --from=app_python_cicd --link /app/dist /tmp/dist
+
+# Install dependencies
+RUN pip install --no-cache-dir /tmp/dist/*.whl && \
+	# Clean up
+	rm -rf /tmp/dist
+
+# Create user 'user' and group 'app'
+RUN groupadd -r app && \
+	useradd -lr -G app -d /app user && \
+	chown -R user:app /app
 USER user
 
 # Expose port
 EXPOSE ${PORT}
 
 CMD [ "sh", "-c", "streamlit run app.py --server.port ${PORT}" ]
-
-
-# --
-# Python CI/CD image
-
-FROM app_python_prod AS app_python_cicd
-
-USER root
-
-# Install build dependencies
-RUN pip install --no-cache-dir --upgrade build
-
-COPY --link --chmod=755 ./app/docker-cicd-command.sh /usr/local/bin/docker-cicd-command
-
-CMD [ "docker-cicd-command" ]

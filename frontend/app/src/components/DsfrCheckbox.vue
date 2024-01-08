@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+import { reactive, ref } from 'vue'
 import { Streamlit } from '~/stcomponentlib'
 import { DsfrCheckbox } from '@gouvminint/vue-dsfr'
 
@@ -10,7 +10,7 @@ useStreamlit()
 
 const props = defineProps<
 	ComponentProps<{
-		movelValue?: boolean
+		modelValue?: boolean
 		required?: boolean
 		small?: boolean
 		name?: string
@@ -35,18 +35,20 @@ if (props.theme)
 	style['--font'] = props.theme.font
 }
 
-watch(
-	() => checked,
-	(value) =>
-		{
-			Streamlit.setComponentValue(value)
-		},
-	{ immediate: true },
-)
+const onInput = (event: InputEvent) =>
+	{
+		event.stopPropagation() // Fix
+		checked.value = (event.currentTarget as HTMLInputElement).checked
+		Streamlit.setComponentValue(checked.value)
+	}
 </script>
 
 <template>
 	<div class="component" :style="style">
-		<DsfrCheckbox v-bind="props.args" v-model="checked" />
+		<DsfrCheckbox
+			v-bind="props.args"
+			v-model="checked"
+			@input="onInput"
+		/>
 	</div>
 </template>

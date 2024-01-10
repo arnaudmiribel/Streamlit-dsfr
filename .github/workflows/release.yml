@@ -37,12 +37,26 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Get latest released version tag
+      id: latest-release
+      if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
+      uses: pozetroninc/github-action-get-latest-release@master
+      with:
+        repository: ${{ github.repository }}
+        excludes: prerelease, draft
+
     - name: Set version tag for pre-release
       if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
-      # Use datetime and short commit hash as the pre-release tag name
+      # Use the latest tag with the short commit hash as suffix
+      # Increase the patch version before the commit hash suffix
       env:
         GITHUB_SHA: ${{ github.sha }}
-      run: echo "VERSION=t$(date +%Y%m%d.%H%M%S).${GITHUB_SHA::4}" >> $GITHUB_ENV
+        LATEST_RELEASE_TAG: ${{ steps.latest-release.outputs.release }}
+      run: |
+        LATEST_RELEASE_TAG=${LATEST_RELEASE_TAG:-v0.0.0}
+        LATEST_RELEASE_TAG=${LATEST_RELEASE_TAG##v}
+        LATEST_RELEASE_TAG=$(awk -F. '{$NF = $NF + 1;} 1' OFS=. <<< "$LATEST_RELEASE_TAG")
+        echo "VERSION=v${LATEST_RELEASE_TAG}+${GITHUB_SHA::7}" >> $GITHUB_ENV
 
     - name: Set version tag for release
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
@@ -103,13 +117,17 @@ jobs:
     - name: Infer if the version is a pre-release
       # PEP 440 specifies that pre-releases have suffixes, such as:
       # `1.0.0.a1`, `1.0.0b2`, `1.0.0rc1`, `1.0.0.dev1`, `1.0.0.post1`
-      # Consider a version is a pre-release if it has any non-numeric characters
-      # Ignore the first character
+      # PEP 440 also mentions local versions, such as:
+      # `1.0.0+foo`, `1.0.0+foo.bar`
+      # For completeness, we also consider these as pre-releases:
+      # `1.0.0-foo`, `1.0.0-foo.bar`
+      # Consider a version is a pre-release if it has '+', '-', or any ASCII letters
+      # Ignore the first character, which is probably 'v'
       env:
         VERSION: ${{ needs.build.outputs.version }}
       run: |
         VERSION=${VERSION:1}
-        if ( echo $VERSION | grep -q '[^0-9]' ); then
+        if ( echo $VERSION | grep -q '[a-zA-Z+-]' ); then
           echo "PRE_RELEASE=true" >> $GITHUB_ENV
         else
           echo "PRE_RELEASE=false" >> $GITHUB_ENV

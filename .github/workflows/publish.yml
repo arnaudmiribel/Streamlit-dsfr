@@ -1,115 +1,48 @@
 name: Publish
 
 on:
-  # Run on push events on primary branches
-  push:
-    branches:
-      - main
-    tags:
-      - 'v*'
+  # Run on release events on releases (not pre-releases)
+  release:
+    types:
+      - released
 
-  # Run on manual triggers
-  workflow_dispatch:
-
-# Set GITHUB_TOKEN permissions
+# Set GITHUB_TOKEN permissions for the workflow
 permissions:
   contents: read
 
 # Allow one concurrent deployment
 concurrency:
   group: ${{ github.workflow }}
-  cancel-in-progress: true
+  # Do not cancel in progress to avoid publishing issues
+  cancel-in-progress: false
 
 jobs:
 
-  # Build job
-  build:
-    name: Build Astro site artifact
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Build for production
-      run: docker compose -f docker-compose.yml -f docker-compose.cicd.yml build
-
-    - name: Copy application files
-      run: docker compose -f docker-compose.yml -f docker-compose.cicd.yml run --rm app
-
-    - name: Upload dist folder
-      uses: actions/upload-artifact@v4
-      with:
-        name: dist
-        path: ./app/dist
-        if-no-files-found: error
-
   # Release job
-  release:
-    name: Release version
+  publish:
+    name: Publish version
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
-    # Dependencies
-    needs:
-      - build
-
-    # Set GITHUB_TOKEN permissions
+    # Set GITHUB_TOKEN permissions for this job
     permissions:
-      contents: write
+      id-token: write
 
     # Set deployment environment
     environment:
-      name: release
-      url: ${{ steps.release-url.outputs.url }}
+      name: publish
 
     steps:
-    - name: Download artifact
-      uses: actions/download-artifact@v4
+
+    - name: Download release binaries
+      uses: robinraju/release-downloader@v1.8
       with:
-        name: dist
-        path: ./dist
+        tag: ${{ github.event.release.tag_name }}
+        out-file-path: ./dist
+        tarBall: false
+        zipBall: false
 
-    - name: Set pre-release tag name
-      id: prerelease-tag
-      if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
-      # Use datetime and short commit hash as the pre-release tag name
-      run: echo "tag=t$(date +%Y%m%d.%H%M%S).${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
-      env:
-        GITHUB_SHA: ${{ github.sha }}
-
-    - name: Create pre-release
-      id: prerelease
-      uses: softprops/action-gh-release@v1
-      if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
+    - name: Publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        # Use the commit hash as the tag
-        tag_name: ${{ steps.prerelease-tag.outputs.tag }}
-        prerelease: true
-        target_commitish: ${{ github.sha }}
-        files: ./dist/*
-        fail_on_unmatched_files: true
-        generate_release_notes: true
-
-    - name: Create release
-      id: release
-      uses: softprops/action-gh-release@v1
-      if: ${{ startsWith(github.ref, 'refs/tags/') }}
-      with:
-        prerelease: false
-        target_commitish: ${{ github.sha }}
-        files: ./dist/*
-        fail_on_unmatched_files: true
-        generate_release_notes: true
-
-    - name: Get release URL
-      id: release-url
-      run: |
-        if [ -n "${{ steps.prerelease.outputs.url }}" ]; then
-          echo "url=${{ steps.prerelease.outputs.url }}" >> $GITHUB_OUTPUT
-        elif [ -n "${{ steps.release.outputs.url }}" ]; then
-          echo "url=${{ steps.release.outputs.url }}" >> $GITHUB_OUTPUT
-        else
-          echo "url=" >> $GITHUB_OUTPUT
-        fi
+        packages-dir: ./dist

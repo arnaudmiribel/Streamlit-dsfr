@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+import { reactive, ref } from 'vue'
 import { Streamlit } from '~/stcomponentlib'
 import { DsfrInput } from '@gouvminint/vue-dsfr'
 
@@ -27,32 +27,48 @@ const props = defineProps<
 	}>
 >()
 
-const checked = ref('')
-const style = reactive<{ [key: string]: string }>({})
+const lastValue = ref('')
+const value = ref('')
 
-if (props.theme)
-{
-	style['--base'] = props.theme.base
-	style['--primary-color'] = props.theme.primaryColor
-	style['--background-color'] = props.theme.backgroundColor
-	style['--secondary-background-color'] = props.theme.secondaryBackgroundColor
-	style['--text-color'] = props.theme.textColor
-	style['--font'] = props.theme.font
-}
+// Bind the input value to `value`
+// Update the Steamlit value when:
+// - the input lose focus, if the value has changed
+// - the user press enter, if the input is focused and the value has changed
 
-watch(
-	() => checked,
-	(value) =>
+const onInput = (event: Event) =>
+	{
+		const target = event.target as HTMLInputElement
+		value.value = target.value
+	}
+
+const onBlur = () =>
+	{
+		if (value.value !== lastValue.value)
 		{
+			lastValue.value = value.value
 			Streamlit.setComponentValue(value.value)
-		},
-	{ immediate: true },
-)
+		}
+	}
+
+const onKeydown = (event: KeyboardEvent) =>
+	{
+		if (event.key === 'Enter' && value.value !== lastValue.value)
+		{
+			lastValue.value = value.value
+			Streamlit.setComponentValue(value.value)
+		}
+	}
 </script>
 
 <template>
-	<div class="component" :style="style">
-		<DsfrInput v-bind="props.args" v-model="checked">
+	<div class="component">
+		<DsfrInput
+			v-bind="props.args"
+			v-model="value"
+			@input="onInput"
+			@blur="onBlur"
+			@keydown="onKeydown"
+		>
 			<template #label v-if="props.args.label">
 				{{ props.args.label }}
 			</template>
@@ -62,3 +78,9 @@ watch(
 		</DsfrInput>
 	</div>
 </template>
+
+<style scoped>
+.component {
+	margin: 4px; /* Margin for the input outline on focus */
+}
+</style>

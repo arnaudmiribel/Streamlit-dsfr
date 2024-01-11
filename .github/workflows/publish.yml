@@ -5,14 +5,17 @@ on:
   release:
     types:
       - published
+      - released
+      - prereleased
 
 # Set GITHUB_TOKEN permissions for the workflow
 permissions:
   contents: read
+  id-token: write
 
-# Allow one concurrent deployment
+# Allow one concurrent deployment per ref
 concurrency:
-  group: ${{ github.workflow }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   # Do not cancel in progress to avoid publishing issues
   cancel-in-progress: false
 
@@ -23,10 +26,6 @@ jobs:
     name: Publish version
     runs-on: ubuntu-latest
     timeout-minutes: 5
-
-    # Set GITHUB_TOKEN permissions for this job
-    permissions:
-      id-token: write
 
     # Set deployment environment
     environment:

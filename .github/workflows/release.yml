@@ -5,8 +5,6 @@ on:
   push:
     branches:
       - main
-    tags:
-      - 'v*'
 
   # Run on manual triggers
   workflow_dispatch:
@@ -37,42 +35,73 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Get latest released version tag
-      id: latest-release
-      if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
-      uses: pozetroninc/github-action-get-latest-release@v0.7.0
-      with:
-        repository: ${{ github.repository }}
-        excludes: prerelease, draft
-
-    - name: Set version tag for pre-release
-      if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
-      # Use the latest tag with the short commit hash as suffix
-      # Increase the patch version before the commit hash suffix
-      env:
-        GITHUB_SHA: ${{ github.sha }}
-        LATEST_RELEASE_TAG: ${{ steps.latest-release.outputs.release }}
+    - name: Get version tag from VERSION file
+      # Read the VERSION file
+      # If the file exists, set the version tag and ensure the tag name starts with 'v'
+      # Else, do not set the version tag (empty string)
       run: |
-        LATEST_RELEASE_TAG=${LATEST_RELEASE_TAG:-v0.0.0}
-        LATEST_RELEASE_TAG=${LATEST_RELEASE_TAG##v}
-        LATEST_RELEASE_TAG=$(awk -F. '{$NF = $NF + 1;} 1' OFS=. <<< "$LATEST_RELEASE_TAG")
-        echo "VERSION=v${LATEST_RELEASE_TAG}+${GITHUB_SHA::7}" >> $GITHUB_ENV
+        VERSION=$(cat ./app/app/VERSION 2>/dev/null || echo '')
+        if [ -n "$VERSION" ]; then
+          VERSION="v${VERSION##v}"
+        fi
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-    - name: Set version tag for release
-      if: ${{ startsWith(github.ref, 'refs/tags/') }}
-      # Use the tag name as the release tag name, without the git ref prefix
-      # Ensure the tag name starts with 'v'
-      env:
-        GITHUB_REF: ${{ github.ref }}
-      run: |
-        VERSION=${GITHUB_REF##refs/tags/}
-        VERSION=${VERSION##v}
-        echo "VERSION=v$VERSION" >> $GITHUB_ENV
-
-    - name: Set VERSION file
+    - name: Check if version tag exists
+      id: release-exists
+      # Run this step only if the version tag is set
+      if: env.VERSION != ''
+      uses: actions/github-script@v7
       env:
         VERSION: ${{ env.VERSION }}
-      run: echo $VERSION > ./app/app/VERSION.txt
+      with:
+        script: |
+          try {
+            const { data: releases } = await github.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: process.env.VERSION,
+            });
+            return 'true';
+          } catch (error) {
+            if (error.status === 404) {
+              return 'false';
+            } else {
+              throw error;
+            }
+          }
+        result-encoding: string
+
+    # If the version tag already exists, build a dev version
+    # Otherwise, build a release or pre-release
+
+    - name: Add dev version suffix to version tag
+      id: dev-version
+      # Run this step only if the version tag is not set or already exists
+      if: |
+        env.VERSION == '' ||
+        steps.release-exists.outputs.result == 'true'
+      # Use the current version tag
+      # If set, increase the patch version (to give the new version a higher precedence)
+      # If not set, use the default version tag
+      # Append the short commit hash as local version suffix
+      env:
+        VERSION: ${{ env.VERSION }}
+        GITHUB_SHA: ${{ github.sha }}
+      run: |
+        if [ -n "$VERSION" ]; then
+          VERSION=$(awk -F. '{$NF = $NF + 1;} 1' OFS=. <<< "${VERSION##v}")
+        else
+          VERSION='0.0.0'
+        fi
+        echo "VERSION=v${VERSION}+${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+    - name: Update VERSION file
+      # Run this step only if the version tag was modified
+      if: steps.dev-version.conclusion == 'success'
+      # Remove the leading character in the version tag, which is `v`
+      env:
+        VERSION: ${{ env.VERSION }}
+      run: echo ${VERSION##v} > ./app/app/VERSION
 
     - name: Build for production
       run: docker compose -f docker-compose.yml -f docker-compose.cicd.yml build
@@ -106,6 +135,10 @@ jobs:
       name: release
       url: ${{ steps.release.outputs.url }}
 
+    # Set environment variables
+    env:
+      VERSION: ${{ needs.build.outputs.version }}
+
     steps:
 
     - name: Download artifact
@@ -114,33 +147,45 @@ jobs:
         name: dist
         path: ./dist
 
-    - name: Infer if the version is a pre-release
-      # PEP 440 specifies that pre-releases have suffixes, such as:
-      # `1.0.0.a1`, `1.0.0b2`, `1.0.0rc1`, `1.0.0.dev1`, `1.0.0.post1`
-      # PEP 440 also mentions local versions, such as:
-      # `1.0.0+foo`, `1.0.0+foo.bar`
-      # For completeness, we also consider these as pre-releases:
-      # `1.0.0-foo`, `1.0.0-foo.bar`
-      # Consider a version is a pre-release if it has '+', '-', or any ASCII letters
-      # Ignore the first character, which is probably 'v'
+    - name: Infer if a release should be created
+      id: infer-release
+      # PEP 440 specifies that:
+      # - releases have suffixes such as: `1.0.0`
+      # - pre-releases have suffixes such as: `1.0.0a1`, `1.0.0b2`, `1.0.0rc1`, `1.0.0.dev1`, `1.0.0.post1`
+      # - pre-releases may also use `.`, `-`, or `_` as separator before the pre-release suffix
+      # - dev local versions have suffixes such as: `1.0.0+foo`, `1.0.0+foo.bar`
+      # Consider:
+      # - Create a release if the version is a release
+      # - Create a pre-release if the version is a pre-release
+      # - Do not create a release if the version is a dev local version
+      # Ignore the leading character in the version tag, which is `v`
       env:
-        VERSION: ${{ needs.build.outputs.version }}
+        VERSION: ${{ env.VERSION }}
       run: |
         VERSION=${VERSION:1}
-        if ( echo $VERSION | grep -q '[a-zA-Z+-]' ); then
-          echo "PRE_RELEASE=true" >> $GITHUB_ENV
+        if ( echo $VERSION | grep -q '[+]' ); then
+          # Dev local version
+          echo "result=dev" >> $GITHUB_ENV
+        elif ( echo $VERSION | grep -q '[a-zA-Z-_]' ); then
+          # Pre-release
+          echo "result=prerelease" >> $GITHUB_ENV
         else
-          echo "PRE_RELEASE=false" >> $GITHUB_ENV
+          # Release
+          echo "result=release" >> $GITHUB_ENV
         fi
 
     - name: Create release
       id: release
+      # Run this step only if a release should be created
+      if: |
+        steps.infer-release.outputs.result == 'release' ||
+        steps.infer-release.outputs.result == 'prerelease'
       uses: softprops/action-gh-release@v1
       with:
         # Use the version tag
-        tag_name: ${{ needs.build.outputs.version }}
-        # Set the release as non-prerelease if not triggered on a tag
-        prerelease: ${{ env.PRE_RELEASE == 'true' }}
+        tag_name: ${{ env.VERSION }}
+        # Set if the release is a pre-release
+        prerelease: ${{ steps.infer-release.outputs.result == 'prerelease' }}
         target_commitish: ${{ github.sha }}
         files: ./dist/*
         fail_on_unmatched_files: true

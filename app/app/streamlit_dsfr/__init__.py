@@ -128,27 +128,50 @@ def dsfr_breadcrumb(
 	return _dsfr_breadcrumb_func(**kwargs, key = key, default = False)
 
 def dsfr_button(
-	label: str,
+	label: str, # Standard
+	key: Optional[Union[str, int]] = None, # Standard
+	# help: Optional[str] = None, # Standard
 	size: Optional[str] = None,
-	disabled: Optional[bool] = None,
+	# on_click: Optional[Callable] = None, # Standard
+	# args: Optional[tuple] = None, # Standard
+	# kwargs: Optional[dict] = None, # Standard
 	*,
+	type: Optional[str] = None, # Standard
+	disabled: Optional[bool] = None, # Standard
+	# use_container_width: Optional[bool] = None, # Standard
 	secondary: Optional[bool] = None,
 	tertiary: Optional[bool] = None,
 	icon: Optional[str] = None,
 	iconOnly: Optional[bool] = None,
 	iconRight: Optional[bool] = None,
 	noOutline: Optional[bool] = None,
-	key: Optional[str] = None,
 	**kwargs,
 ):
+	"""
+	Streamlit DSFR Button component
+
+	Streamlit standard component equivalent:
+	https://docs.streamlit.io/library/api-reference/widgets/st.button
+	"""
+	kwargs['label'] = label
+
 	if size is not None:
 		kwargs['size'] = size
+
 	if disabled is not None:
 		kwargs['disabled'] = disabled
-	if secondary is not None:
-		kwargs['secondary'] = secondary
-	if tertiary is not None:
-		kwargs['tertiary'] = tertiary
+
+	if type is not None:
+		if type == 'secondary':
+			kwargs['secondary'] = True
+		elif type == 'tertiary':
+			kwargs['secondary'] = True
+	else:
+		if secondary is not None:
+			kwargs['secondary'] = secondary
+		if tertiary is not None:
+			kwargs['tertiary'] = tertiary
+
 	if icon is not None:
 		kwargs['icon'] = icon
 	if iconOnly is not None:
@@ -158,32 +181,49 @@ def dsfr_button(
 	if noOutline is not None:
 		kwargs['noOutline'] = noOutline
 
-	return _dsfr_button_func(label = label, **kwargs, key = key, default = False)
+	return _dsfr_button_func(**kwargs, key = key, default = False)
 
 def dsfr_checkbox(
-	hint: Optional[str] = None,
+	# label: str, # Standard
+	value: Optional[bool] = None, # Standard
+	key: Optional[Union[str, int]] = None, # Standard
+	help: Optional[str] = None, # Standard
 	small: Optional[bool] = None,
 	required: Optional[bool] = None,
 	name: Optional[str] = None,
-	value: Optional[bool] = None,
+	# on_change: Optional[Callable] = None, # Standard
+	# args: Optional[tuple] = None, # Standard
+	# kwargs: Optional[dict] = None, # Standard
 	*,
+	disabled: Optional[bool] = None, # Standard
+	# label_visibility: Optional[str] = None, # Standard
 	id: Optional[str] = None,
 	inline: Optional[bool] = None,
 	errorMessage: Optional[str] = None,
 	validMessage: Optional[str] = None,
-	key: Optional[str] = None,
 	**kwargs,
 ):
-	if hint is not None:
-		kwargs['hint'] = hint
+	"""
+	Streamlit DSFR Checkbox component
+
+	Streamlit standard component equivalent:
+	https://docs.streamlit.io/library/api-reference/widgets/st.checkbox
+	"""
+	if value is not None:
+		kwargs['modelValue'] = value
+	if help is not None:
+		kwargs['hint'] = help
+
 	if small is not None:
 		kwargs['small'] = small
 	if required is not None:
 		kwargs['required'] = required
 	if name is not None:
 		kwargs['name'] = name
-	if value is not None:
-		kwargs['modelValue'] = value
+
+	if disabled is not None:
+		kwargs['disabled'] = disabled
+
 	if id is not None:
 		kwargs['id'] = id
 	if inline is not None:
@@ -196,10 +236,21 @@ def dsfr_checkbox(
 	return _dsfr_checkbox_func(**kwargs, key = key, default = False)
 
 def dsfr_input(
-	label: str,
-	hint: Optional[str] = None,
-	value: Optional[str] = None,
+	label: str, # Standard
+	value: Optional[str] = None, # Standard
+	# max_chars: Optional[int] = None, # Standard
+	key: Optional[Union[str, int]] = None, # Standard
+	# type: Optional[str] = None, # 'default' | 'password' # Standard
+	help: Optional[str] = None, # Standard
+	# autocomplete: Optional[str] = None, # Standard
+	# on_change: Optional[Callable] = None, # Standard
+	# args: Optional[tuple] = None, # Standard
+	# kwargs: Optional[dict] = None, # Standard
 	*,
+	# placeholder: Optional[str] = None, # Standard
+	disabled: Optional[bool] = None, # Standard
+	# label_visibility: Optional[str] = None, # 'visible' (default), 'hidden', 'collapse' # Standard
+	hint: Optional[str] = None, # Alias for 'help'
 	labelVisible: Optional[bool] = None,
 	id: Optional[str] = None,
 	descriptionId: Optional[str] = None,
@@ -209,19 +260,34 @@ def dsfr_input(
 	labelClass: Optional[str] = None,
 	wrapperClass: Optional[str] = None,
 	requiredTip: Optional[str] = None,
-	key: Optional[str] = None,
 	**kwargs,
 ):
-	if hint is not None:
-		kwargs['hint'] = hint
+	"""
+	Streamlit DSFR Input component
+
+	Streamlit standard component equivalent:
+	https://docs.streamlit.io/library/api-reference/widgets/st.text_input
+	"""
+	kwargs['label'] = label
+
 	if value is not None:
 		kwargs['modelValue'] = value
 	else:
 		kwargs['modelValue'] = ''
+
+	if help is not None:
+		kwargs['hint'] = help
+	elif hint is not None:
+		kwargs['hint'] = hint
+
+	if disabled is not None:
+		kwargs['disabled'] = disabled
+
 	if labelVisible is not None:
 		kwargs['labelVisible'] = labelVisible
 	else:
 		kwargs['labelVisible'] = not not label
+
 	if id is not None:
 		kwargs['id'] = id
 	if descriptionId is not None:
@@ -239,52 +305,68 @@ def dsfr_input(
 	if requiredTip is not None:
 		kwargs['requiredTip'] = requiredTip
 
-	return _dsfr_input_func(label = label, **kwargs, key = key, default = kwargs['modelValue'])
+	return _dsfr_input_func(**kwargs, key = key, default = kwargs['modelValue'])
 
 def dsfr_picture(
-	src: str,
-	size: Optional[str] = None,
+	# image: Union[np.ndarray, List[np.ndarray], BytesIO, str, List[str]], # Standard
+	image: str, # Semi-standard
+	# caption: Optional[Union[str, List[str]]] = None, # Standard
+	caption: Optional[str] = None, # Semi-standard
+	size: Optional[str] = None, # 'small' | 'medium' | 'large'
+	# width: Optional[int] = None, # Standard
+	# use_column_width: Optional[Union[str, bool]] = None, # 'auto' | 'always' | 'never' | bool # Standard
+	# clamp: Optional[bool] = None, # Standard
+	# channels: Optional[str] = None, # 'RGB' | 'BGR' # Standard
+	# output_format: Optional[str] = None, # 'JPEG' | 'PNG' | 'auto' # Standard
 	*,
+	legend: Optional[str] = None, # Alias for 'caption'
 	alt: Optional[str] = None,
 	title: Optional[str] = None,
-	legend: Optional[str] = None,
-	ratio: Optional[str] = None,
-	key: Optional[str] = None,
+	ratio: Optional[str] = None, # '32x9' | '16x9' | '3x2' | '4x3' | '1x1' | '3x4' | '2x3'
+	key: Optional[Union[str, int]] = None,
 	**kwargs,
 ):
+	"""
+	Streamlit DSFR Picture component
+
+	Streamlit standard component equivalent:
+	https://docs.streamlit.io/library/api-reference/media/st.image
+	"""
+	kwargs['src'] = image
+
+	if caption is not None:
+		kwargs['legend'] = caption
+	elif legend is not None:
+		kwargs['legend'] = legend
+
 	if size is not None:
 		kwargs['size'] = size
 	if alt is not None:
 		kwargs['alt'] = alt
 	if title is not None:
 		kwargs['title'] = title
-	if legend is not None:
-		kwargs['legend'] = legend
 	if ratio is not None:
 		kwargs['ratio'] = ratio
 
-	return _dsfr_picture_func(src = src, **kwargs, key = key, default = None)
+	return _dsfr_picture_func(**kwargs, key = key, default = None)
 
 def dsfr_radio(
-	# _ Standard parameters
-	label: str,
-	options: Iterable[str],
-	index: Optional[int] = None,
-	format_func: Optional[Callable] = None,
-	key: Optional[Union[str, int]] = None,
-	# help: Optional[str] = None, # Supported in DSFR but missing in VueDsfr?
-	# on_change: Optional[Callable] = None,
-	# args: Optional[tuple] = None,
-	# kwargs: Optional[dict] = None,
+	label: str, # Standard
+	options: Iterable[str], # Standard
+	index: Optional[int] = None, # Standard
+	format_func: Optional[Callable] = None, # Standard
+	key: Optional[Union[str, int]] = None, # Standard
+	# help: Optional[str] = None, # Supported in DSFR but missing in VueDsfr? # Standard
+	# on_change: Optional[Callable] = None, # Standard
+	# args: Optional[tuple] = None, # Standard
+	# kwargs: Optional[dict] = None, # Standard
 	*,
-	disabled: Optional[Union[bool, list[bool]]] = None,
-	horizontal: Optional[bool] = None,
-	captions: Optional[list[str]] = None,
-	# label_visibility: Optional[str] = None, # 'visible' (default), 'hidden', 'collapse'
-	# _ Custom parameters
-	# legend: Optional[str] = None, # == label
-	inline: Optional[bool] = None, # == horizontal
-	hints: Optional[list[str]] = None, # == captions
+	disabled: Optional[Union[bool, list[bool]]] = None, # Standard
+	horizontal: Optional[bool] = None, # Standard
+	captions: Optional[list[str]] = None, # Standard
+	# label_visibility: Optional[str] = None, # 'visible' (default), 'hidden', 'collapse' # Standard
+	inline: Optional[bool] = None, # Alias for 'horizontal'
+	hints: Optional[list[str]] = None, # Alias for 'captions'
 	small: Optional[bool] = None,
 	titleId: Optional[str] = None,
 	required: Optional[bool] = None,
@@ -300,10 +382,6 @@ def dsfr_radio(
 
 	Streamlit standard component equivalent:
 	https://docs.streamlit.io/library/api-reference/widgets/st.radio
-
-	Standard parameters (supported are marked with ✔️):
-	options ✔️, index ✔️, format_func ✔️, key ✔️, help, on_change, args, kwargs, *,
-	disabled ✔️, horizontal, captions, label_visibility
 	"""
 	kwargs['legend'] = label
 
@@ -337,15 +415,15 @@ def dsfr_radio(
 
 	if horizontal is not None:
 		kwargs['inline'] = small
-	if inline is not None:
+	elif inline is not None:
 		kwargs['inline'] = small
 
+	if captions is None:
+		captions = hints
 	if captions is not None:
-		hints = captions
-	if hints is not None:
-		if len(hints) > len(kwargs['options']):
-			raise ValueError('hints cannot be longer than options')
-		for index, value in enumerate(hints):
+		if len(captions) > len(kwargs['options']):
+			raise ValueError('captions cannot be longer than options')
+		for index, value in enumerate(captions):
 			kwargs['options'][index]['hint'] = value
 
 	if small is not None:

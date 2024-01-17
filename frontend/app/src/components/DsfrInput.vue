@@ -4,12 +4,13 @@ import { Streamlit } from '~/stcomponentlib'
 import { DsfrInput } from '@gouvminint/vue-dsfr'
 
 import { useStreamlit } from '../streamlit'
-import type { ComponentProps } from '../types/ComponentProps'
+import type { ComponentProps } from '../types/ComponentProps.d.ts'
 
 useStreamlit()
 
 const props = defineProps<
 	ComponentProps<{
+		disabled?: boolean
 		// Props
 		labelVisible?: boolean
 		hint?: string
@@ -64,6 +65,7 @@ const onKeydown = (event: KeyboardEvent) =>
 	<div class="component">
 		<DsfrInput
 			v-bind="props.args"
+			:disabled="props.disabled || props.args.disabled"
 			v-model="value"
 			@input="onInput"
 			@blur="onBlur"

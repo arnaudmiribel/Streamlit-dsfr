@@ -4,12 +4,14 @@ import { Streamlit } from '~/stcomponentlib'
 import { DsfrCheckbox } from '@gouvminint/vue-dsfr'
 
 import { useStreamlit } from '../streamlit'
-import type { ComponentProps } from '../types/ComponentProps'
+import type { ComponentProps } from '../types/ComponentProps.d.ts'
 
 useStreamlit()
 
 const props = defineProps<
 	ComponentProps<{
+		disabled?: boolean
+		// Props
 		modelValue?: boolean
 		required?: boolean
 		small?: boolean
@@ -19,6 +21,10 @@ const props = defineProps<
 		inline?: boolean
 		errorMessage?: string
 		validMessage?: string
+		// Slots
+		label?: string
+		requiredTip?: string
+
 	}>
 >()
 
@@ -47,8 +53,13 @@ const onInput = (event: InputEvent) =>
 	<div class="component" :style="style">
 		<DsfrCheckbox
 			v-bind="props.args"
+			:disabled="props.disabled || props.args.disabled"
 			v-model="checked"
 			@input="onInput"
-		/>
+		>
+			<template #required-tip v-if="props.args.requiredTip">
+				{{ props.args.requiredTip }}
+			</template>
+		</DsfrCheckbox>
 	</div>
 </template>

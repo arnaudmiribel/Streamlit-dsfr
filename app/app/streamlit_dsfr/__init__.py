@@ -243,14 +243,14 @@ def dsfr_input(
 	value: Optional[str] = None, # Standard
 	# max_chars: Optional[int] = None, # Standard
 	key: Optional[Union[str, int]] = None, # Standard
-	# type: Optional[str] = None, # 'default' | 'password' # Standard
+	type: Optional[str] = None, # Semi-standard
 	help: Optional[str] = None, # Standard
 	# autocomplete: Optional[str] = None, # Standard
 	# on_change: Optional[Callable] = None, # Standard
 	# args: Optional[tuple] = None, # Standard
 	# kwargs: Optional[dict] = None, # Standard
 	*,
-	# placeholder: Optional[str] = None, # Standard
+	placeholder: Optional[str] = None, # Standard
 	disabled: Optional[bool] = None, # Standard
 	# label_visibility: Optional[str] = None, # 'visible' (default), 'hidden', 'collapse' # Standard
 	hint: Optional[str] = None, # Alias for 'help'
@@ -268,9 +268,6 @@ def dsfr_input(
 ):
 	"""
 	Streamlit DSFR Input component
-
-	Streamlit standard component equivalent:
-	https://docs.streamlit.io/library/api-reference/widgets/st.text_input
 	"""
 	kwargs['label'] = label
 
@@ -284,8 +281,16 @@ def dsfr_input(
 	elif hint is not None:
 		kwargs['hint'] = hint
 
+	if placeholder is not None:
+		kwargs['placeholder'] = placeholder
+
 	if disabled is not None:
 		kwargs['disabled'] = disabled
+
+	if type is not None:
+		if type == 'default':
+			kwargs['type'] = 'text'
+		kwargs['type'] = type
 
 	if labelVisible is not None:
 		kwargs['labelVisible'] = labelVisible
@@ -318,14 +323,14 @@ def dsfr_text_input(
 	value: Optional[str] = None, # Standard
 	# max_chars: Optional[int] = None, # Standard
 	key: Optional[Union[str, int]] = None, # Standard
-	# type: Optional[str] = None, # 'default' | 'password' # Standard
+	type: Optional[str] = None, # 'default' | 'password' # Standard
 	help: Optional[str] = None, # Standard
 	# autocomplete: Optional[str] = None, # Standard
 	# on_change: Optional[Callable] = None, # Standard
 	# args: Optional[tuple] = None, # Standard
 	# kwargs: Optional[dict] = None, # Standard
 	*,
-	# placeholder: Optional[str] = None, # Standard
+	placeholder: Optional[str] = None, # Standard
 	disabled: Optional[bool] = None, # Standard
 	# label_visibility: Optional[str] = None, # 'visible' (default), 'hidden', 'collapse' # Standard
 	hint: Optional[str] = None, # Alias for 'help'
@@ -340,6 +345,197 @@ def dsfr_text_input(
 	requiredTip: Optional[str] = None,
 	**kwargs,
 ):
+	"""
+	Streamlit DSFR Text Input component
+
+	Streamlit standard component equivalent:
+	https://docs.streamlit.io/library/api-reference/widgets/st.text_input
+	"""
+	if value is None:
+		value = ''
+
+	return dsfr_input(
+		label = label,
+		value = value,
+		key = key,
+		type = type,
+		help = help,
+		placeholder = placeholder,
+		disabled = disabled,
+		hint = hint,
+		labelVisible = labelVisible,
+		id = id,
+		descriptionId = descriptionId,
+		isInvalid = isInvalid,
+		isValid = isValid,
+		isTextarea = False,
+		isWithWarning = isWithWarning,
+		labelClass = labelClass,
+		wrapperClass = wrapperClass,
+		requiredTip = requiredTip,
+		**kwargs,
+	)
+
+def dsfr_number_input(
+	label: str, # Standard
+	min_value: Optional[Union[int, float]] = None, # Standard
+	max_value: Optional[Union[int, float]] = None, # Standard
+	value: Optional[Union[int, float]] = None, # Standard
+	step: Optional[Union[int, float]] = None, # Standard
+	# format: Optional[str] = None, # Standard
+	key: Optional[Union[str, int]] = None, # Standard
+	help: Optional[str] = None, # Standard
+	# on_change: Optional[Callable] = None, # Standard
+	# args: Optional[tuple] = None, # Standard
+	# kwargs: Optional[dict] = None, # Standard
+	*,
+	placeholder: Optional[str] = None, # Standard
+	disabled: Optional[bool] = None, # Standard
+	# label_visibility: Optional[str] = None, # 'visible' (default), 'hidden', 'collapse' # Standard
+	hint: Optional[str] = None, # Alias for 'help'
+	labelVisible: Optional[bool] = None,
+	id: Optional[str] = None,
+	descriptionId: Optional[str] = None,
+	isInvalid: Optional[bool] = None,
+	isValid: Optional[bool] = None,
+	isWithWarning: Optional[bool] = None,
+	labelClass: Optional[str] = None,
+	wrapperClass: Optional[str] = None,
+	requiredTip: Optional[str] = None,
+	**kwargs,
+):
+	"""
+	Streamlit DSFR Number Input component
+
+	Streamlit standard component equivalent:
+	https://docs.streamlit.io/library/api-reference/widgets/st.number_input
+	"""
+	if min_value is not None:
+		if value is None:
+			value = min_value
+
+	if value is None:
+		value = 0
+
+	return dsfr_input(
+		label = label,
+		value = value,
+		key = key,
+		type = 'number',
+		help = help,
+		placeholder = placeholder,
+		disabled = disabled,
+		hint = hint,
+		labelVisible = labelVisible,
+		id = id,
+		descriptionId = descriptionId,
+		isInvalid = isInvalid,
+		isValid = isValid,
+		isTextarea = False,
+		isWithWarning = isWithWarning,
+		labelClass = labelClass,
+		wrapperClass = wrapperClass,
+		requiredTip = requiredTip,
+		min = min_value,
+		max = max_value,
+		step = step,
+		**kwargs,
+	)
+
+def dsfr_text_area(
+	label: str, # Standard
+	value: Optional[str] = None, # Standard
+	# height: Optional[int] = None, # Standard
+	# max_chars: Optional[int] = None, # Standard
+	key: Optional[Union[str, int]] = None, # Standard
+	help: Optional[str] = None, # Standard
+	# on_change: Optional[Callable] = None, # Standard
+	# args: Optional[tuple] = None, # Standard
+	# kwargs: Optional[dict] = None, # Standard
+	*,
+	placeholder: Optional[str] = None, # Standard
+	disabled: Optional[bool] = None, # Standard
+	# label_visibility: Optional[str] = None, # 'visible' (default), 'hidden', 'collapse' # Standard
+	hint: Optional[str] = None, # Alias for 'help'
+	labelVisible: Optional[bool] = None,
+	id: Optional[str] = None,
+	descriptionId: Optional[str] = None,
+	isInvalid: Optional[bool] = None,
+	isValid: Optional[bool] = None,
+	isWithWarning: Optional[bool] = None,
+	labelClass: Optional[str] = None,
+	wrapperClass: Optional[str] = None,
+	requiredTip: Optional[str] = None,
+	**kwargs,
+):
+	"""
+	Streamlit DSFR Text Area component
+
+	Streamlit standard component equivalent:
+	https://docs.streamlit.io/library/api-reference/widgets/st.text_area
+	"""
+	if value is None:
+		value = ''
+
+	return dsfr_input(
+		label = label,
+		value = value,
+		key = key,
+		help = help,
+		placeholder = placeholder,
+		disabled = disabled,
+		hint = hint,
+		labelVisible = labelVisible,
+		id = id,
+		descriptionId = descriptionId,
+		isInvalid = isInvalid,
+		isValid = isValid,
+		isTextarea = True,
+		isWithWarning = isWithWarning,
+		labelClass = labelClass,
+		wrapperClass = wrapperClass,
+		requiredTip = requiredTip,
+		**kwargs,
+	)
+
+def dsfr_date_input(
+	label: str, # Standard
+	# value: Optional[Union[datetime, str]] = None, # Standard
+	value: Optional[str] = None, # Semi-standard
+	# min_value: Optional[Union[datetime]] = None, # Standard
+	min_value: Optional[str] = None, # Semi-standard
+	# max_value: Optional[Union[datetime]] = None, # Standard
+	max_value: Optional[str] = None, # Semi-standard
+	key: Optional[Union[str, int]] = None, # Standard
+	help: Optional[str] = None, # Standard
+	# on_change: Optional[Callable] = None, # Standard
+	# args: Optional[tuple] = None, # Standard
+	# kwargs: Optional[dict] = None, # Standard
+	*,
+	# format: Optional[str] = None, # Standard
+	disabled: Optional[bool] = None, # Standard
+	# label_visibility: Optional[str] = None, # 'visible' (default), 'hidden', 'collapse' # Standard
+	hint: Optional[str] = None, # Alias for 'help'
+	labelVisible: Optional[bool] = None,
+	id: Optional[str] = None,
+	descriptionId: Optional[str] = None,
+	isInvalid: Optional[bool] = None,
+	isValid: Optional[bool] = None,
+	isWithWarning: Optional[bool] = None,
+	labelClass: Optional[str] = None,
+	wrapperClass: Optional[str] = None,
+	requiredTip: Optional[str] = None,
+	**kwargs,
+):
+	"""
+	Streamlit DSFR Text Area component
+
+	Streamlit standard component equivalent:
+	https://docs.streamlit.io/library/api-reference/widgets/st.date_input
+	"""
+	if value is None:
+		value = ''
+
 	return dsfr_input(
 		label = label,
 		value = value,
@@ -357,24 +553,25 @@ def dsfr_text_input(
 		labelClass = labelClass,
 		wrapperClass = wrapperClass,
 		requiredTip = requiredTip,
+		min = min_value,
+		max = max_value,
 		**kwargs,
 	)
 
-def dsfr_text_area(
+def dsfr_time_input(
 	label: str, # Standard
-	value: Optional[str] = None, # Standard
-	# max_chars: Optional[int] = None, # Standard
+	# value: Optional[Union[datetime, str]] = None, # Standard
+	value: Optional[str] = None, # Semi-standard
 	key: Optional[Union[str, int]] = None, # Standard
-	# type: Optional[str] = None, # 'default' | 'password' # Standard
 	help: Optional[str] = None, # Standard
-	# autocomplete: Optional[str] = None, # Standard
 	# on_change: Optional[Callable] = None, # Standard
 	# args: Optional[tuple] = None, # Standard
 	# kwargs: Optional[dict] = None, # Standard
 	*,
-	# placeholder: Optional[str] = None, # Standard
 	disabled: Optional[bool] = None, # Standard
 	# label_visibility: Optional[str] = None, # 'visible' (default), 'hidden', 'collapse' # Standard
+	# step: Optional[Union[int, timedelta]] = None, # Standard
+	step: Optional[int] = None, # Semi-standard
 	hint: Optional[str] = None, # Alias for 'help'
 	labelVisible: Optional[bool] = None,
 	id: Optional[str] = None,
@@ -387,6 +584,15 @@ def dsfr_text_area(
 	requiredTip: Optional[str] = None,
 	**kwargs,
 ):
+	"""
+	Streamlit DSFR Text Area component
+
+	Streamlit standard component equivalent:
+	https://docs.streamlit.io/library/api-reference/widgets/st.time_input
+	"""
+	if value is None:
+		value = ''
+
 	return dsfr_input(
 		label = label,
 		value = value,
@@ -399,11 +605,12 @@ def dsfr_text_area(
 		descriptionId = descriptionId,
 		isInvalid = isInvalid,
 		isValid = isValid,
-		isTextarea = True,
+		isTextarea = False,
 		isWithWarning = isWithWarning,
 		labelClass = labelClass,
 		wrapperClass = wrapperClass,
 		requiredTip = requiredTip,
+		step = step,
 		**kwargs,
 	)
 

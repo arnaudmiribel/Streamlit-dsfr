@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { ref } from 'vue'
 import { Streamlit } from '~/stcomponentlib'
 import { DsfrInput } from '@gouvminint/vue-dsfr'
 
@@ -10,6 +10,8 @@ useStreamlit()
 
 const props = defineProps<
 	ComponentProps<{
+		type?: string
+		placeholder?: string
 		disabled?: boolean
 		// Props
 		labelVisible?: boolean
@@ -19,6 +21,7 @@ const props = defineProps<
 		descriptionId?: string
 		isInvalid?: boolean
 		isValid?: boolean
+		isTextarea?: boolean
 		isWithWarning?: boolean
 		labelClass?: string
 		wrapperClass?: string

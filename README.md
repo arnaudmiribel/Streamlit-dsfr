@@ -3,22 +3,35 @@
 VueDsfr components for Streamlit
 
 
-## Installation instructions
+## Installation & Usage instructions
 
 ```sh
 pip install streamlit-dsfr
 ```
 
+See [the package description on PyPI](https://pypi.org/project/streamlit-dsfr/#description) (or [here](app/app/README.md)) for usage instructions.
 
-## Usage instructions
+See [the demo app](app/demo/) source code for a complete usage example.
 
-```python
-import streamlit as st
 
-from streamlit_dsfr import st_dsfr_button
+## Development instructions
 
-value = st_dsfr_button()
-st.write(value)
+Test the component in a production environment:
+
+```sh
+docker compose -f docker-compose.yml up --build -d
+```
+
+Test the component in a development environment:
+
+```sh
+docker compose up --build -d
+```
+
+Update the frontend packages:
+
+```sh
+docker compose -f docker-compose-npm.yml run --build --rm npm install
 ```
 
 

@@ -64,6 +64,40 @@ with col_right:
 # ---
 st.divider()
 
+st.header('Boutons lien')
+
+col_left, col_right = st.columns(2)
+
+with col_left:
+	st.markdown('#### Composants Streamlit')
+
+	st.link_button('Ceci est un bouton lien', 'https://www.streamlit.io')
+
+with col_right:
+	st.markdown('#### Composants DSFR')
+
+	stdsfr.link_button('Ceci est un bouton lien', 'https://www.streamlit.io')
+
+# ---
+st.divider()
+
+st.header('Boutons copie')
+
+col_left, col_right = st.columns(2)
+
+with col_left:
+	st.markdown('#### Composants Streamlit')
+
+	st.markdown('Pas d\'équivalent Streamlit')
+
+with col_right:
+	st.markdown('#### Composants DSFR')
+
+	stdsfr.copy_button('Ceci est un bouton copie', 'dsfr_copy_button')
+
+# ---
+st.divider()
+
 st.header('Cases à cocher')
 
 col_left, col_right = st.columns(2)

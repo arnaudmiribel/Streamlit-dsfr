@@ -42,7 +42,6 @@ else:
                 path = os.path.join(build_dir, supported_components[component]),
             )
 
-
 # Components wrapper functions for users
 
 def alert(
@@ -877,3 +876,7 @@ def range(
 slider = range
 dsfr_range = range
 dsfr_slider = range
+
+# Util functions for users
+
+from override_font_family import override_font_family

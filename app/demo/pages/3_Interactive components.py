@@ -75,17 +75,23 @@ col_left, col_right = st.columns(2)
 with col_left:
 	st.markdown('#### Composants Streamlit')
 
-	st.link_button('Ceci est un bouton lien', 'https://www.streamlit.io')
+	with st.echo():
+		st.link_button('Ceci est un bouton lien', 'https://www.streamlit.io')
 
 with col_right:
 	st.markdown('#### Composants DSFR')
 
-	stdsfr.link_button('Ceci est un bouton lien', 'https://www.streamlit.io')
+	with st.echo():
+		dsfr_val = stdsfr.link_button('Ceci est un bouton lien', 'https://www.streamlit.io')
+		st.write('Value:', dsfr_val)
+
 
 # ---
 st.divider()
 
 st.header('Boutons copie')
+
+st.markdown('On click, the button copies a value to the clipboard.')
 
 col_left, col_right = st.columns(2)
 
@@ -97,7 +103,9 @@ with col_left:
 with col_right:
 	st.markdown('#### Composants DSFR')
 
-	stdsfr.copy_button('Ceci est un bouton copie', 'dsfr_copy_button')
+	with st.echo():
+		dsfr_val = stdsfr.copy_button('Ceci est un bouton copie', 'dsfr_copy_button')
+		st.write('Value:', dsfr_val)
 
 # ---
 st.divider()

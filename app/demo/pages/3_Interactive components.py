@@ -398,6 +398,8 @@ with col_right:
 			'Ceci est un téléversement de fichier',
 		)
 		st.write('Value:', dsfr_val)
+		if dsfr_val.type.startswith('image'):
+			stdsfr.picture(dsfr_val)
 
 col_left, col_right = st.columns(2)
 

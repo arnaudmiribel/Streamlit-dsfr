@@ -38,16 +38,30 @@ col_left, col_right = st.columns(2)
 with col_left:
 	st.markdown('#### Composant Streamlit')
 
+	if 'st_button_count' not in st.session_state:
+		st.session_state['st_button_count'] = 0
+
 	with st.echo():
 		st_val = st.button('Ceci est un bouton')
 		st.write('Value:', st_val)
 
+	if st_val:
+		st.session_state['st_button_count'] += 1
+	st.write('Nombre de clics:', st.session_state['st_button_count'])
+
 with col_right:
 	st.markdown('#### Composant DSFR')
+
+	if 'dsfr_button_count' not in st.session_state:
+		st.session_state['dsfr_button_count'] = 0
 
 	with st.echo():
 		dsfr_val = stdsfr.button('Ceci est un bouton')
 		st.write('Value:', dsfr_val)
+
+	if dsfr_val:
+		st.session_state['dsfr_button_count'] += 1
+	st.write('Nombre de clics:', st.session_state['dsfr_button_count'])
 
 col_left, col_right = st.columns(2)
 
@@ -68,6 +82,43 @@ with col_right:
 		dsfr_val = stdsfr.button(
 			f'Ceci est un nombre aléatoire: {math.floor(random.random() * 100)}',
 			key = 'dsfr_random_button',
+		)
+		st.write('Value:', dsfr_val)
+
+# ---
+st.divider()
+
+st.header('Groupe de boutons')
+
+col_left, col_right = st.columns(2)
+
+with col_left:
+	st.markdown('#### Composant Streamlit')
+
+	st.markdown('Pas d\'équivalent Streamlit')
+
+with col_right:
+	st.markdown('#### Composant DSFR')
+
+	with st.echo():
+		dsfr_val = stdsfr.buttons_group([
+			'Ceci est un bouton',
+			'Ceci est un autre bouton',
+		])
+		st.write('Value:', dsfr_val)
+
+col_left, col_right = st.columns(2)
+
+with col_right:
+	st.markdown('#### Composant DSFR')
+
+	with st.echo():
+		dsfr_val = stdsfr.buttons_group(
+			[
+				'Ceci est un bouton',
+				'Ceci est un autre bouton',
+			],
+			inline = True,
 		)
 		st.write('Value:', dsfr_val)
 
@@ -103,7 +154,6 @@ col_left, col_right = st.columns(2)
 
 with col_left:
 	st.markdown('#### Composants Streamlit')
-
 	st.markdown('Pas d\'équivalent Streamlit')
 
 with col_right:
@@ -404,7 +454,7 @@ with col_right:
 			'Ceci est un téléversement de fichier',
 		)
 		st.write('Value:', dsfr_val)
-		if dsfr_val.type.startswith('image'):
+		if dsfr_val and dsfr_val.type.startswith('image'):
 			stdsfr.picture(dsfr_val)
 
 col_left, col_right = st.columns(2)

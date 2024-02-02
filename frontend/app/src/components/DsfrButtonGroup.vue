@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref, computed } from 'vue'
 import { Streamlit } from '~/stcomponentlib'
 import { DsfrButtonGroup } from '@gouvminint/vue-dsfr'
 
@@ -33,6 +33,35 @@ const props = defineProps<
 >()
 
 const clicked = ref<boolean[]>(Array(props.args.buttons?.length ?? 0).fill(false))
+const buttons = computed(() => ([
+	...(props.args.buttons
+		? props.args.buttons.map(
+			(button, index) => ({
+				...button,
+				disabled: button.disabled || clicked.value[index] || props.disabled || props.args.disabled,
+			}))
+		: []
+	),
+]))
+
+function onRenderEvent(_event: Event): void
+{
+	if (clicked.value.some(value => value))
+	{
+		clicked.value = Array(props.args.buttons?.length ?? 0).fill(false)
+		Streamlit.setComponentValue([...clicked.value])
+	}
+}
+
+onMounted(() =>
+	{
+		Streamlit.events.addEventListener(Streamlit.RENDER_EVENT, onRenderEvent)
+	})
+
+onUnmounted(() =>
+	{
+		Streamlit.events.removeEventListener(Streamlit.RENDER_EVENT, onRenderEvent)
+	})
 
 async function onClick(event: any)
 {
@@ -82,11 +111,6 @@ async function onClick(event: any)
 
 	clicked.value[index] = true
 	Streamlit.setComponentValue([...clicked.value])
-
-	await new Promise(resolve => setTimeout(resolve, 50))
-
-	clicked.value[index] = false
-	Streamlit.setComponentValue([...clicked.value])
 }
 </script>
 
@@ -94,6 +118,7 @@ async function onClick(event: any)
 	<div class="component" :style="style">
 		<DsfrButtonGroup
 			v-bind="props.args"
+			:buttons="buttons"
 			:disabled="props.disabled || props.args.disabled"
 			@click="onClick"
 		/>

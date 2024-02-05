@@ -1,20 +1,22 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref, computed } from 'vue'
 import { Streamlit } from '~/stcomponentlib'
-import { DsfrButton } from '@gouvminint/vue-dsfr'
 
-import { useStreamlit } from '../streamlit'
-import type { ComponentProps } from '../types/ComponentProps.d.ts'
+import '~/assets/iconify-icon.min.js'
+
+import { useStreamlit } from '~/streamlit'
+import type { ComponentProps } from '~/types/ComponentProps.d.ts'
+import DsfrButton from '~/components/dsfr/DsfrButton.vue'
 
 useStreamlit()
 
 const props = defineProps<
 	ComponentProps<{
-		label?: string | undefined
+		label?: string
 		secondary?: boolean
 		tertiary?: boolean
 		disabled?: boolean
-		icon?: string | undefined
+		icon?: string
 		iconOnly?: boolean
 		iconRight?: boolean
 		noOutline?: boolean
@@ -26,22 +28,29 @@ const props = defineProps<
 >()
 
 const clicked = ref<boolean>(false)
+const disabled = computed(() => clicked.value || props.disabled || props.args.disabled)
+
+function onRenderEvent(_event: Event): void
+{
+	if (clicked.value)
+	{
+		clicked.value = false
+		Streamlit.setComponentValue(clicked.value)
+	}
+}
+
+onMounted(() =>
+	{
+		Streamlit.events.addEventListener(Streamlit.RENDER_EVENT, onRenderEvent)
+	})
+
+onUnmounted(() =>
+	{
+		Streamlit.events.removeEventListener(Streamlit.RENDER_EVENT, onRenderEvent)
+	})
 
 async function onClick()
 {
-	if (props.args.link)
-	{
-		window.open(props.args.link, '_blank')?.focus()
-	}
-	else if (props.args.copy)
-	{
-		navigator.clipboard.writeText(props.args.copy)
-			.catch(err =>
-				{
-					console.error('Failed to copy:', err)
-				})
-	}
-
 	if (clicked.value)
 	{
 		clicked.value = false
@@ -52,11 +61,6 @@ async function onClick()
 
 	clicked.value = true
 	Streamlit.setComponentValue(clicked.value)
-
-	await new Promise(resolve => setTimeout(resolve, 50))
-
-	clicked.value = false
-	Streamlit.setComponentValue(clicked.value)
 }
 </script>
 
@@ -64,8 +68,7 @@ async function onClick()
 	<div class="component" :style="style">
 		<DsfrButton
 			v-bind="props.args"
-			:label="props.args.label || 'Button'"
-			:disabled="props.disabled || props.args.disabled"
+			:disabled="disabled"
 			@click="onClick"
 		/>
 	</div>

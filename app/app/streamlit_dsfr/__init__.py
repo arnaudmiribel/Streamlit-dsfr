@@ -425,6 +425,9 @@ def checkbox(
 
 	if value is not None:
 		kwargs['modelValue'] = value
+	else:
+		kwargs['modelValue'] = False
+
 	if help is not None:
 		kwargs['hint'] = help
 
@@ -447,7 +450,7 @@ def checkbox(
 	if validMessage is not None:
 		kwargs['validMessage'] = validMessage
 
-	return _dsfr_checkbox_func(**kwargs, key = key, default = False)
+	return _dsfr_checkbox_func(**kwargs, key = key, default = kwargs['modelValue'])
 
 dsfr_checkbox = checkbox
 
@@ -1034,16 +1037,23 @@ def radio(
 		for option in options
 	]
 
+	lenoptions = len(kwargs['options'])
+
 	if index is None:
 		index = 0
-	if index < len(kwargs['options']):
-		kwargs['modelValue'] = kwargs['options'][index]['value']
+	if lenoptions > 0:
+		if index < lenoptions:
+			kwargs['modelValue'] = kwargs['options'][index]['value']
+		else:
+			kwargs['modelValue'] = kwargs['options'][0]['value']
+	else:
+		kwargs['modelValue'] = None
 
 	if disabled is not None:
 		if isinstance(disabled, bool):
 			kwargs['disabled'] = disabled
 		elif isinstance(disabled, Iterable):
-			if len(disabled) > len(kwargs['options']):
+			if len(disabled) > lenoptions:
 				raise ValueError('disabled as a list cannot be longer than options')
 			for index, value in enumerate(disabled):
 				kwargs['options'][index]['disabled'] = value
@@ -1058,7 +1068,7 @@ def radio(
 	if captions is None:
 		captions = hints
 	if captions is not None:
-		if len(captions) > len(kwargs['options']):
+		if len(captions) > lenoptions:
 			raise ValueError('captions cannot be longer than options')
 		for index, value in enumerate(captions):
 			kwargs['options'][index]['hint'] = value
@@ -1091,7 +1101,8 @@ def range(
 	# max_value: Optional[Union[int, float, datetime, timedelta]] = None, # Standard
 	max_value: Optional[Union[int, float]] = None, # Semi-standard
 	# value: Optional[Union[int, float, tuple[int, int], tuple[float, float], tuple[datetime, datetime], Tuple[timedelta, timedelta]]] = None, # Standard
-	value: Optional[Union[int, float, tuple[int, int], tuple[float, float]]] = None, # Semi-standard
+	# value: Optional[Union[int, float, tuple[int, int], tuple[float, float]]] = None, # Semi-standard
+	value: Optional[Union[int, float]] = None, # Semi-standard
 	# step: Optional[Union[int, float, datetime, timedelta]] = None, # Standard
 	step: Optional[Union[int, float]] = None, # Semi-standard
 	# format: Optional[str] = None, # Standard
@@ -1122,6 +1133,32 @@ def range(
 	"""
 	kwargs['label'] = label
 
+	if value is None:
+		value = 0
+	kwargs['modelValue'] = value
+	if min_value is None:
+		if isinstance(value, int):
+			min_value = min(0, value)
+		elif isinstance(value, float):
+			min_value = min(0.0, value)
+	if max_value is None:
+		if isinstance(value, int):
+			max_value = max(100, value)
+		elif isinstance(value, float):
+			max_value = max(1.0, value)
+	if step is None:
+		if isinstance(value, int):
+			step = 1
+		elif isinstance(value, float):
+			step = 0.01
+
+	if min_value is not None:
+		kwargs['min'] = min_value
+	if max_value is not None:
+		kwargs['max'] = max_value
+	if step is not None:
+		kwargs['step'] = step
+
 	if help is not None:
 		kwargs['hint'] = help
 	elif hint is not None:
@@ -1129,33 +1166,6 @@ def range(
 
 	if messages is not None:
 		kwargs['messages'] = messages
-
-	if min_value is None:
-		min_value = 0
-	kwargs['min'] = min_value
-	if value is None:
-		value = min_value
-
-	if max_value is not None:
-		kwargs['max'] = max_value
-
-	if value is not None:
-		kwargs['modelValue'] = value
-		if min_value is None:
-			if isinstance(value, int):
-				kwargs['min'] = 0
-			elif isinstance(value, float):
-				kwargs['min'] = 0.0
-		if max_value is None:
-			if isinstance(value, int):
-				kwargs['max'] = 100
-			elif isinstance(value, float):
-				kwargs['max'] = 1.0
-		if step is None:
-			if isinstance(value, int):
-				kwargs['step'] = 1
-			elif isinstance(value, float):
-				kwargs['step'] = 0.01
 
 	if id is not None:
 		kwargs['id'] = id
@@ -1171,9 +1181,6 @@ def range(
 		kwargs['small'] = small
 	if hideIndicators is not None:
 		kwargs['hideIndicators'] = hideIndicators
-
-	if step is not None:
-		kwargs['step'] = step
 
 	if disabled is not None:
 		kwargs['disabled'] = disabled

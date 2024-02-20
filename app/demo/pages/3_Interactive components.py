@@ -246,8 +246,10 @@ with col_left:
 	st.divider()
 
 	with st.echo():
+		default_val = True
 		st_val = st.checkbox(
 			'Ceci est une case à cocher',
+			value = default_val,
 			help = 'Ceci est une aide',
 		)
 		st.write('Value:', st_val)
@@ -256,8 +258,10 @@ with col_right:
 	st.divider()
 
 	with st.echo():
+		default_val = True
 		dsfr_val = stdsfr.checkbox(
 			'Ceci est une case à cocher',
+			value = default_val,
 			help = 'Ceci est une aide',
 		)
 		st.write('Value:', dsfr_val)
@@ -289,8 +293,10 @@ with col_left:
 	st.divider()
 
 	with st.echo():
+		default_val = 'I need help!'
 		st_val = st.text_input(
 			'Ceci est un champ de saisie',
+			value = default_val,
 			help = 'Ceci est une aide',
 		)
 		st.write('Value:', st_val)
@@ -299,8 +305,10 @@ with col_right:
 	st.divider()
 
 	with st.echo():
+		default_val = 'I need help!'
 		dsfr_val = stdsfr.text_input(
 			'Ceci est un champ de saisie',
+			value = default_val,
 			help = 'Ceci est une aide',
 		)
 		st.write('Value:', dsfr_val)

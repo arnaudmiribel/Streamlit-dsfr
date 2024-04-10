@@ -92,6 +92,71 @@ with col_right:
 
 	with st.echo():
 		dsfr_val = stdsfr.button(
+			f'Ceci est un bouton secondaire',
+			icon = 'ri-search-line',
+			secondary = True,
+		)
+		st.write('Value:', dsfr_val)
+
+col_left, col_right = st.columns(2)
+
+with col_right:
+	st.divider()
+
+	with st.echo():
+		dsfr_val = stdsfr.button(
+			f'Ceci est un bouton tertiaire',
+			icon = 'ri-search-line',
+			tertiary = True,
+		)
+		st.write('Value:', dsfr_val)
+
+col_left, col_right = st.columns(2)
+
+with col_right:
+	st.divider()
+
+	with st.echo():
+		dsfr_val = stdsfr.button(
+			f'Ceci est un bouton de succès',
+			icon = 'ri-search-line',
+			type = 'success',
+		)
+		st.write('Value:', dsfr_val)
+
+col_left, col_right = st.columns(2)
+
+with col_right:
+	st.divider()
+
+	with st.echo():
+		dsfr_val = stdsfr.button(
+			f'Ceci est un bouton d\'avertissement',
+			icon = 'ri-search-line',
+			type = 'warning',
+		)
+		st.write('Value:', dsfr_val)
+
+col_left, col_right = st.columns(2)
+
+with col_right:
+	st.divider()
+
+	with st.echo():
+		dsfr_val = stdsfr.button(
+			f'Ceci est un bouton de danger',
+			icon = 'ri-search-line',
+			type = 'danger',
+		)
+		st.write('Value:', dsfr_val)
+
+col_left, col_right = st.columns(2)
+
+with col_right:
+	st.divider()
+
+	with st.echo():
+		dsfr_val = stdsfr.button(
 			f'Ceci est un bouton avec icône',
 			icon = 'ri-search-line',
 		)
@@ -142,6 +207,31 @@ with col_right:
 				'Ceci est un autre bouton',
 			],
 			inline = True,
+		)
+		st.write('Value:', dsfr_val)
+
+col_left, col_right = st.columns(2)
+
+with col_right:
+	with st.echo():
+		dsfr_val = stdsfr.buttons_group(
+			[
+				'Ceci est un bouton standard',
+				'Ceci est un bouton secondaire',
+				'Ceci est un bouton tertiaire',
+				'Ceci est un bouton de succès',
+				'Ceci est un bouton d\'avertissement',
+				'Ceci est un bouton de danger',
+			],
+			inline = True,
+			type = [
+				'primary',
+				'secondary',
+				'tertiary',
+				'success',
+				'warning',
+				'danger',
+			],
 		)
 		st.write('Value:', dsfr_val)
 

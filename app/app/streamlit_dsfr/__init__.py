@@ -1,5 +1,5 @@
 import os
-from typing import Optional, Union, Iterable, Callable
+from typing import Optional, Union, Iterable, Callable, Literal
 import json
 import base64
 import hashlib
@@ -141,6 +141,8 @@ def breadcrumb(
 
 dsfr_breadcrumb = breadcrumb
 
+ButtonTypes = Optional[Literal['primary', 'secondary', 'tertiary', 'success', 'warning', 'danger']]
+
 def button(
 	label: str, # Standard
 	key: Optional[Union[str, int]] = None, # Standard
@@ -150,7 +152,7 @@ def button(
 	# args: Optional[tuple] = None, # Standard
 	# kwargs: Optional[dict] = None, # Standard
 	*,
-	type: Optional[str] = None, # Standard
+	type: ButtonTypes = None, # Standard
 	disabled: Optional[bool] = None, # Standard
 	# use_container_width: Optional[bool] = None, # Standard
 	secondary: Optional[bool] = None,
@@ -175,16 +177,14 @@ def button(
 	if disabled is not None:
 		kwargs['disabled'] = disabled
 
+	if type is None:
+		if secondary is True:
+			type = 'secondary'
+		elif tertiary is True:
+			type = 'tertiary'
+
 	if type is not None:
-		if type == 'secondary':
-			kwargs['secondary'] = True
-		elif type == 'tertiary':
-			kwargs['tertiary'] = True
-	else:
-		if secondary is not None:
-			kwargs['secondary'] = secondary
-		if tertiary is not None:
-			kwargs['tertiary'] = tertiary
+		kwargs['type'] = type
 
 	if icon is not None:
 		kwargs['icon'] = icon
@@ -205,7 +205,7 @@ def link_button(
 	*,
 	key: Optional[Union[str, int]] = None,
 	help: Optional[str] = None, # Standard
-	type: Optional[str] = None, # Standard # 'primary' | 'secondary'
+	type: ButtonTypes = None,
 	disabled: Optional[bool] = None, # Standard
 	use_container_width: Optional[bool] = None, # Standard
 ):
@@ -233,7 +233,7 @@ def copy_button(
 	*,
 	key: Optional[Union[str, int]] = None,
 	help: Optional[str] = None,
-	type: Optional[str] = None, # 'primary' | 'secondary'
+	type: ButtonTypes = None,
 	disabled: Optional[bool] = None,
 	use_container_width: Optional[bool] = None,
 ):
@@ -260,7 +260,7 @@ def buttons_group(
 	*,
 	disabled: Union[Optional[bool], list[Optional[bool]]] = None,
 	# Buttons
-	type: Union[Optional[str], list[Optional[str]]] = None,
+	type: Union[ButtonTypes, list[ButtonTypes]] = None,
 	secondary: Union[Optional[bool], list[Optional[bool]]] = None,
 	tertiary: Union[Optional[bool], list[Optional[bool]]] = None,
 	icon: Union[Optional[str], list[Optional[str]]] = None,
@@ -282,45 +282,35 @@ def buttons_group(
 	https://docs.streamlit.io/library/api-reference/widgets/st.button
 	"""
 
-	buttons = []
-
 	if isinstance(labels, str):
 		labels = [labels]
-	for label in labels:
-		buttons.append({
-			'label': label,
-		})
+
+	buttons = [ { 'label': label } for label in labels ]
+
+	if type is None:
+		if tertiary is True:
+			type = 'tertiary'
+		elif secondary is True:
+			type = 'secondary'
+		else:
+			type = [ None for _ in buttons ]
+			if isinstance(secondary, list):
+				for i, each in enumerate(secondary):
+					if each is True:
+						type[i] = 'secondary'
+			if isinstance(tertiary, list):
+				for i, each in enumerate(tertiary):
+					if each is True:
+						type[i] = 'tertiary'
 
 	if type is not None:
 		if isinstance(type, list):
 			for i, each in enumerate(type):
-				if each == 'secondary':
-					kwargs['secondary'] = True
-				elif each == 'tertiary':
-					kwargs['tertiary'] = True
+				if each is not None:
+					buttons[i]['type'] = each
 		else:
 			for button in buttons:
-				if type == 'secondary':
-					kwargs['secondary'] = True
-				elif type == 'tertiary':
-					kwargs['tertiary'] = True
-	else:
-		if secondary is not None:
-			if isinstance(secondary, list):
-				for i, each in enumerate(secondary):
-					if each is not None:
-						buttons[i]['secondary'] = each
-			else:
-				for button in buttons:
-					button['secondary'] = secondary
-		if tertiary is not None:
-			if isinstance(tertiary, list):
-				for i, each in enumerate(tertiary):
-					if each is not None:
-						buttons[i]['tertiary'] = each
-			else:
-				for button in buttons:
-					button['tertiary'] = tertiary
+				button['type'] = type
 
 	if disabled is not None:
 		if isinstance(disabled, list):

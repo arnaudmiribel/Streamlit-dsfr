@@ -28,11 +28,16 @@ const props = defineProps<
 >()
 
 const clicked = ref<boolean>(false)
-const disabled = computed(() => clicked.value || props.disabled || props.args.disabled)
+
+let toggleOffTimeout: number | undefined = undefined
+let lockTimeout: number | undefined = undefined
 
 function onRenderEvent(_event: Event): void
 {
-	if (clicked.value)
+	if (
+		clicked.value &&
+		lockTimeout === undefined
+	)
 	{
 		clicked.value = false
 		Streamlit.setComponentValue(clicked.value)
@@ -61,6 +66,30 @@ async function onClick()
 
 	clicked.value = true
 	Streamlit.setComponentValue(clicked.value)
+
+	if (toggleOffTimeout)
+	{
+		clearTimeout(toggleOffTimeout)
+	}
+
+	if (lockTimeout)
+	{
+		clearTimeout(lockTimeout)
+	}
+
+	lockTimeout = -1
+	toggleOffTimeout = setTimeout(() =>
+		{
+			clicked.value = false
+			Streamlit.setComponentValue(clicked.value)
+
+			lockTimeout = setTimeout(() =>
+				{
+					lockTimeout = undefined
+				}, 50)
+
+			toggleOffTimeout = undefined
+		}, 50)
 }
 </script>
 
@@ -68,7 +97,7 @@ async function onClick()
 	<div class="component" :style="style">
 		<DsfrButton
 			v-bind="props.args"
-			:disabled="disabled"
+			:disabled="clicked || props.disabled || props.args.disabled"
 			@click="onClick"
 		/>
 	</div>

@@ -18,8 +18,7 @@ const props = defineProps<
 		size?: 'small' | 'medium' | 'large'
 		buttons?: {
 			label?: string
-			secondary?: boolean
-			tertiary?: boolean
+			type?: 'primary' | 'secondary' | 'tertiary' | 'success' | 'warning' | 'danger'
 			disabled?: boolean
 			icon?: string
 			iconOnly?: boolean
@@ -34,6 +33,9 @@ const props = defineProps<
 >()
 
 const clicked = ref<boolean[]>(Array(props.args.buttons?.length ?? 0).fill(false))
+
+let toggleOffTimeout: number | undefined = undefined
+let lockTimeout: number | undefined = undefined
 
 function onRenderEvent(_event: Event): void
 {
@@ -66,6 +68,30 @@ async function onClickIndex(index: number): Promise<void>
 
 	clicked.value[index] = true
 	Streamlit.setComponentValue([...clicked.value])
+
+	if (toggleOffTimeout)
+	{
+		clearTimeout(toggleOffTimeout)
+	}
+
+	if (lockTimeout)
+	{
+		clearTimeout(lockTimeout)
+	}
+
+	lockTimeout = -1
+	toggleOffTimeout = setTimeout(() =>
+		{
+			clicked.value = false
+			Streamlit.setComponentValue(clicked.value)
+
+			lockTimeout = setTimeout(() =>
+				{
+					lockTimeout = undefined
+				}, 50)
+
+			toggleOffTimeout = undefined
+		}, 50)
 }
 </script>
 

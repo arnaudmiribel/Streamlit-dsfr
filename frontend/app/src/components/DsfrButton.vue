@@ -30,9 +30,11 @@ const props = defineProps<
 const clicked = ref<boolean>(false)
 const disabled = computed(() => clicked.value || props.disabled || props.args.disabled)
 
+let toggleOffTimeout: number | undefined = undefined
+
 function onRenderEvent(_event: Event): void
 {
-	if (clicked.value)
+	if (clicked.value && toggleOffTimeout === undefined)
 	{
 		clicked.value = false
 		Streamlit.setComponentValue(clicked.value)
@@ -61,6 +63,22 @@ async function onClick()
 
 	clicked.value = true
 	Streamlit.setComponentValue(clicked.value)
+
+	if (toggleOffTimeout)
+	{
+		clearTimeout(toggleOffTimeout)
+	}
+
+	toggleOffTimeout = setTimeout(() =>
+		{
+			clicked.value = false
+			Streamlit.setComponentValue(clicked.value)
+
+			await new Promise(resolve => setTimeout(resolve, 50))
+
+			clearTimeout(toggleOffTimeout)
+			toggleOffTimeout = undefined
+		}, 50)
 }
 </script>
 
